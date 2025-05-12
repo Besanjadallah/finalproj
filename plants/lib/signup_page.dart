@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'profile_page.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({Key? key}) : super(key: key);
@@ -38,29 +40,41 @@ class _SignupPageState extends State<SignupPage> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:5000/api/users/signup'), // ⚠️ بدلي الرابط حسب الجهاز
+        Uri.parse('http://192.168.56.1:8080/api/users/register'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'name': "${firstNameController.text} ${lastNameController.text}",
           'email': emailController.text,
           'password': passwordController.text,
-          'role': 'user', // 👈 بنخليه user دائمًا بهالمرحلة
+          'role': 'user',
         }),
       );
 
       final resData = jsonDecode(response.body);
 
       if (response.statusCode == 201) {
+        // تخزين التوكن
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', resData['token']);
+        await prefs.setString('role', resData['user']['role']);
+        
+        if (!mounted) return;
+        
         showDialog(
           context: context,
           builder: (_) => AlertDialog(
-            title: const Text("Success"),
-            content: const Text("Account created successfully!"),
+            title: const Text("Registration Successful"),
+            content: const Text("Your account has been created successfully!"),
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.pop(context);
+                  Navigator.pop(context); // Close dialog
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ProfilePage(userName: resData['user']['name']),
+                    ),
+                  );
                 },
                 child: const Text("OK"),
               ),
@@ -68,6 +82,7 @@ class _SignupPageState extends State<SignupPage> {
           ),
         );
       } else {
+        if (!mounted) return;
         showDialog(
           context: context,
           builder: (_) => AlertDialog(
@@ -83,6 +98,7 @@ class _SignupPageState extends State<SignupPage> {
         );
       }
     } catch (e) {
+      if (!mounted) return;
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
@@ -148,7 +164,7 @@ class _SignupPageState extends State<SignupPage> {
             ),
             const SizedBox(height: 25),
 
-            // 🧍 First Name
+            // الاسم الأول
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: TextField(
@@ -168,7 +184,7 @@ class _SignupPageState extends State<SignupPage> {
             ),
             const SizedBox(height: 20),
 
-            // 🧍 Last Name
+            // الاسم الأخير
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: TextField(
@@ -188,7 +204,7 @@ class _SignupPageState extends State<SignupPage> {
             ),
             const SizedBox(height: 20),
 
-            // 📧 Email
+            // البريد الإلكتروني
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: TextField(
@@ -208,7 +224,7 @@ class _SignupPageState extends State<SignupPage> {
             ),
             const SizedBox(height: 20),
 
-            // 🔐 Password
+            // كلمة المرور
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: TextField(
@@ -229,7 +245,7 @@ class _SignupPageState extends State<SignupPage> {
             ),
             const SizedBox(height: 30),
 
-            // ✅ Sign Up Button
+            // زر التسجيل
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: SizedBox(

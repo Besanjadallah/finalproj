@@ -1,80 +1,111 @@
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 // تسجيل مستخدم جديد
-const registerUser = async (req, res) => {
-  const { name, email, password, role } = req.body;
-
+exports.register = async (req, res) => {
   try {
-    // التأكد من عدم وجود المستخدم مسبقاً
+    const { name, email, password , role} = req.body;
+    
+    // التحقق من وجود المستخدم
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: 'Email already exists' });
+      return res.status(400).json({ error: "Email already exists" });
     }
 
     // تشفير كلمة المرور
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // إنشاء مستخدم جديد مع الدور
-    const newUser = new User({
+    const hashedPassword = await bcrypt.hash(password, 12);
+    
+    // إنشاء مستخدم جديد
+    const user = new User({
       name,
       email,
       password: hashedPassword,
-      role: role || 'user', // 👈 "user" هي القيمة الافتراضية إذا ما تم إرسال role
+      role: 'user' // Role defaults to 'user'
     });
 
-    await newUser.save();
+    await user.save();
+    
+    // إنشاء token
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
 
-    res.status(201).json({
-      message: 'User registered successfully',
-      user: {
-        id: newUser._id,
-        name: newUser.name,
-        email: newUser.email,
-        role: newUser.role,
-      },
-    });
-
-  } catch (error) {
-    res.status(500).json({ message: 'Something went wrong', error });
-  }
-};
-
-// تسجيل الدخول
-const loginUser = async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    // البحث عن المستخدم
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: 'User not found' });
-    }
-
-    // التحقق من كلمة المرور
-    const isPasswordCorrect = await bcrypt.compare(password, user.password);
-    if (!isPasswordCorrect) {
-      return res.status(400).json({ message: 'Incorrect password' });
-    }
-
-    // إعادة بيانات تسجيل الدخول الناجحة
-    res.status(200).json({
-      message: 'Login successful',
+    res.status(201).json({ 
+      message: "User created successfully",
+      token,
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role,
-      },
+        role: user.role
+      }
     });
-
-  } catch (error) {
-    res.status(500).json({ message: 'Login error', error });
+    
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-// تصدير الدوال
-module.exports = {
-  registerUser,
-  loginUser,
+// تسجيل دخول
+exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    // البحث عن المستخدم
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ error: "Invalid credentials" });
+    }
+
+    // التحقق من كلمة المرور
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: "Invalid credentials" });
+    }
+
+    // إنشاء token
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    res.json({
+      message: "Login successful",
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }
+    });
+    
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+// ... existing code ...
+
+// Make a user an admin
+exports.makeAdmin = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { role: 'admin' },
+      { new: true }
+    );
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.json({ message: "User promoted to admin", user });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
