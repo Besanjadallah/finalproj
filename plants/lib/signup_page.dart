@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'profile_page.dart';
+import 'package:dio/dio.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({Key? key}) : super(key: key);
@@ -39,18 +40,19 @@ class _SignupPageState extends State<SignupPage> {
     }
 
     try {
-      final response = await http.post(
-        Uri.parse('http://192.168.56.1:8080/api/users/register'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
+      final dio = Dio();
+      final response = await dio.post(
+        'http://192.168.56.1:8080/register',
+        options: Options(headers: {'Content-Type': 'application/json'}),
+        data: {
           'name': "${firstNameController.text} ${lastNameController.text}",
           'email': emailController.text,
           'password': passwordController.text,
           'role': 'user',
-        }),
+        },
       );
 
-      final resData = jsonDecode(response.body);
+      final resData = response.data;
 
       if (response.statusCode == 201) {
         // تخزين التوكن

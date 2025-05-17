@@ -1,106 +1,91 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'add_product_page.dart';
+import 'edit_products_page.dart';
+import 'delete_product_page.dart';
+import 'view_orders_page.dart';
+import 'manage_users_page.dart';
+import 'login_page.dart'; // إذا بدك ترجعي للّوجن عند تسجيل الخروج
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
 
-  Future<void> _logout(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('token');
-    await prefs.remove('role');
-    if (context.mounted) {
-      Navigator.pushReplacementNamed(context, '/welcome');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
+        backgroundColor: const Color(0xFF8DBF67),
+        elevation: 0,
         title: const Text('Admin Dashboard'),
-        backgroundColor: Colors.green,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => _logout(context),
-          ),
-        ],
+        centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: GridView.count(
+          crossAxisCount: 2,
+          crossAxisSpacing: 20,
+          mainAxisSpacing: 20,
           children: [
-            const Card(
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Welcome to the Admin Dashboard 👑',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      'You can manage users and products from here.',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            _buildAdminOption(
+              icon: Icons.add_box_rounded,
+              label: 'Add Product',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AddProductPage()),
+                );
+              },
             ),
-            const SizedBox(height: 20),
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-              children: [
-                _buildDashboardCard(
+            _buildAdminOption(
+              icon: Icons.edit_note_rounded,
+              label: 'Edit Products',
+              onTap: () {
+                Navigator.push(
                   context,
-                  'Manage Users',
-                  Icons.people,
-                  Colors.blue,
-                  () {
-                    // TODO: Navigate to manage users page
-                  },
-                ),
-                _buildDashboardCard(
+                  MaterialPageRoute(builder: (_) => const EditProductsPage()),
+                );
+              },
+            ),
+            _buildAdminOption(
+              icon: Icons.delete_forever,
+              label: 'Delete Product',
+              onTap: () {
+                Navigator.push(
                   context,
-                  'Manage Products',
-                  Icons.shopping_bag,
-                  Colors.orange,
-                  () {
-                    // TODO: Navigate to manage products page
-                  },
-                ),
-                _buildDashboardCard(
+                  MaterialPageRoute(builder: (_) => const DeleteProductPage()),
+                );
+              },
+            ),
+            _buildAdminOption(
+              icon: Icons.receipt_long,
+              label: 'Orders',
+              onTap: () {
+                Navigator.push(
                   context,
-                  'Orders',
-                  Icons.shopping_cart,
-                  Colors.purple,
-                  () {
-                    // TODO: Navigate to orders page
-                  },
-                ),
-                _buildDashboardCard(
+                  MaterialPageRoute(builder: (_) => const ViewOrdersPage()),
+                );
+              },
+            ),
+            _buildAdminOption(
+              icon: Icons.people_alt_rounded,
+              label: 'Users',
+              onTap: () {
+                Navigator.push(
                   context,
-                  'Reports',
-                  Icons.bar_chart,
-                  Colors.green,
-                  () {
-                    // TODO: Navigate to reports page
-                  },
-                ),
-              ],
+                  MaterialPageRoute(builder: (_) => const ManageUsersPage()),
+                );
+              },
+            ),
+            _buildAdminOption(
+              icon: Icons.logout,
+              label: 'Logout',
+              onTap: () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginPage()),
+                  (route) => false,
+                );
+              },
             ),
           ],
         ),
@@ -108,38 +93,35 @@ class AdminDashboard extends StatelessWidget {
     );
   }
 
-  Widget _buildDashboardCard(
-    BuildContext context,
-    String title,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
-  ) {
-    return Card(
-      elevation: 4,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: 48,
-                color: color,
+  Widget _buildAdminOption({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.grey.shade200,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 50, color: Colors.green),
+            const SizedBox(height: 12),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Colors.black87,
               ),
-              const SizedBox(height: 8),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

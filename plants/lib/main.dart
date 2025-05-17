@@ -4,6 +4,7 @@ import 'login_page.dart';
 import 'signup_page.dart';
 import 'profile_page.dart';
 import 'welcome_page.dart';
+import 'admin_dashboard.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
