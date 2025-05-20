@@ -7,7 +7,7 @@ class AddProductPage extends StatefulWidget {
   @override
   State<AddProductPage> createState() => _AddProductPageState();
 }
-
+///
 class _AddProductPageState extends State<AddProductPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
