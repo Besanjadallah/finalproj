@@ -20,7 +20,7 @@ void main() async {
       : '/welcome',
   ));
 }
-
+//
 class PlantsiApp extends StatelessWidget {
   final String initialRoute;
   
@@ -37,7 +37,7 @@ class PlantsiApp extends StatelessWidget {
       initialRoute: initialRoute,
       routes: {
         '/welcome': (context) => const WelcomePage(),
-        '/login': (context) => const LoginPage(),
+      //  '/login': (context) => const LoginPage(),
         '/signup': (context) => const SignupPage(),
         '/profile': (context) {
           final name = ModalRoute.of(context)?.settings.arguments as String?;

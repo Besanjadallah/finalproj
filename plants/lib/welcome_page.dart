@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'admin_dashboard.dart';
 import 'login_page.dart';
 
 
@@ -46,7 +47,7 @@ class WelcomePage extends StatelessWidget {
                 onPressed: () {
   Navigator.push(
     context,
-    MaterialPageRoute(builder: (_) => const LoginPage()),
+    MaterialPageRoute(builder: (_) => const ProfileDashboard()),
   );
 },
 

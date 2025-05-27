@@ -52,16 +52,16 @@ class _LoginPageState extends State<LoginPage> {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', data['token']);
         await prefs.setString('role', data['user']['role']);
-        
+
         if (!mounted) return;
 
         if (data['user']['role'] == 'admin') {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const AdminDashboard(),
-            ),
-          );
+          // Navigator.pushReplacement(
+          //   context,
+          //   MaterialPageRoute(
+          //     builder: (_) => const AdminDashboard(),
+          //   ),
+          // );
         } else {
           Navigator.pushReplacement(
             context,
