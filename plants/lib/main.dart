@@ -1,29 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+
 import 'login_page.dart';
 import 'signup_page.dart';
 import 'profile_page.dart';
 import 'welcome_page.dart';
 import 'admin_dashboard.dart';
+import 'stores_page.dart';
+import 'cart_page.dart';
+
+import 'providers/cart_provider.dart';
+import 'providers/favorite_provider.dart'; // ✅ مزود المفضلة الجديد
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // تحميل token عند بدء التشغيل
+
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('token');
   final role = prefs.getString('role');
-  
-  runApp(PlantsiApp(
-    initialRoute: token != null 
-      ? (role == 'admin' ? '/admin' : '/profile') 
-      : '/welcome',
-  ));
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(create: (_) => FavoriteProvider()), // ✅ إضافة Provider المفضلة
+      ],
+      child: PlantsiApp(
+        initialRoute: token != null
+            ? (role == 'admin' ? '/admin' : '/profile')
+            : '/welcome',
+      ),
+    ),
+  );
 }
 
 class PlantsiApp extends StatelessWidget {
   final String initialRoute;
-  
+
   const PlantsiApp({
     super.key,
     required this.initialRoute,
@@ -36,14 +50,13 @@ class PlantsiApp extends StatelessWidget {
       title: 'Plantsi',
       initialRoute: initialRoute,
       routes: {
+        '/stores': (context) => StoresPage(),
         '/welcome': (context) => const WelcomePage(),
         '/login': (context) => const LoginPage(),
         '/signup': (context) => const SignupPage(),
-        '/profile': (context) {
-          final name = ModalRoute.of(context)?.settings.arguments as String?;
-          return ProfilePage(userName: name ?? 'User');
-        },
+        '/profile': (context) => const ProfilePage(),
         '/admin': (context) => const AdminDashboard(),
+        '/cart': (context) => const CartPage(),
       },
       theme: ThemeData(
         primarySwatch: Colors.green,
@@ -71,7 +84,7 @@ class AdminDashboard extends StatelessWidget {
             onPressed: () async {
               final prefs = await SharedPreferences.getInstance();
               await prefs.clear();
-              Navigator.pushReplacementNamed(context, '/welcome');
+              Navigator.pushReplacementNamed(context, '/stores');
             },
           ),
         ],

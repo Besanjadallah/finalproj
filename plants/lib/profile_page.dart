@@ -1,8 +1,87 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'main_home_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'login_page.dart';
+import 'edit_profile_page.dart';
+import 'change_password_page.dart';
 
-class ProfilePage extends StatelessWidget {
-  final String userName;
-  const ProfilePage({super.key, required this.userName});
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  File? _selectedImage;
+  String userName = '';
+  String userEmail = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserInfo();
+  }
+
+  Future<void> _loadUserInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userName = prefs.getString('name') ?? 'User';
+      userEmail = prefs.getString('email') ?? '';
+    });
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+      });
+    }
+  }
+
+  Future<void> _uploadImage() async {
+    if (_selectedImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No image selected')),
+      );
+      return;
+    }
+
+    print('📤 Uploading image: ${_selectedImage!.path}');
+  }
+
+  void _skip() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const MainHomePage()),
+    );
+  }
+
+  Future<void> _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginPage()),
+      (route) => false,
+    );
+  }
+
+  ButtonStyle greenGradientButtonStyle() {
+    return ElevatedButton.styleFrom(
+      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+      backgroundColor: Colors.white.withOpacity(0.85),
+    ).copyWith(
+      foregroundColor: MaterialStateProperty.all(const Color(0xFF2E7D32)), // نص أخضر
+      overlayColor: MaterialStateProperty.all(Colors.white24),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,48 +112,71 @@ class ProfilePage extends StatelessWidget {
                 'Welcome to the online store',
                 style: TextStyle(color: Colors.white70, fontSize: 16),
               ),
+              const SizedBox(height: 4),
+                 Text(
+                       userEmail,
+                       style: const TextStyle(color: Colors.white60, fontSize: 13, fontStyle: FontStyle.italic),
+                     ),
+
               const SizedBox(height: 30),
               CircleAvatar(
                 radius: 50,
-                backgroundImage: AssetImage('assets/images/profile.png'), // صورة افتراضية
+                backgroundImage: _selectedImage != null
+                    ? FileImage(_selectedImage!)
+                    : const AssetImage('assets/images/profile.png') as ImageProvider,
                 backgroundColor: Colors.white,
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () {
-                  // اختيار صورة جديدة (بنعملها لاحقاً)
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green.shade700,
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
+                onPressed: _pickImage,
+                style: greenGradientButtonStyle(),
                 child: const Text('Change profile picture'),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () {
-                  // رفع الصورة (لاحقاً)
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green.shade400,
-                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
+                onPressed: _uploadImage,
+                style: greenGradientButtonStyle(),
                 child: const Text('Upload picture'),
               ),
-              const SizedBox(height: 12),
-              TextButton(
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
                 onPressed: () {
-                  // تخطي الصفحة
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const EditProfilePage()));
                 },
-                child: const Text(
-                  'Skip',
-                  style: TextStyle(color: Colors.white),
+                style: greenGradientButtonStyle(),
+                icon: const Icon(Icons.edit),
+                label: const Text('Edit Info'),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const ChangePasswordPage()));
+                },
+                style: greenGradientButtonStyle(),
+                icon: const Icon(Icons.lock),
+                label: const Text('Change Password'),
+              ),
+              const SizedBox(height: 40),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: _logout,
+                      child: const Text(
+                        'Logout',
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: _skip,
+                      child: const Text(
+                        'Skip',
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                    ),
+                  ],
                 ),
               )
             ],
