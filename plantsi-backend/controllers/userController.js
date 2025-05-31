@@ -3,10 +3,10 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 // تسجيل مستخدم جديد
-exports.register = async (req, res) => {
+const register = async (req, res) => {
   try {
-    const { name, email, password , role} = req.body;
-    
+    const { name, email, password, role } = req.body;
+
     // التحقق من وجود المستخدم
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -15,17 +15,17 @@ exports.register = async (req, res) => {
 
     // تشفير كلمة المرور
     const hashedPassword = await bcrypt.hash(password, 12);
-    
+
     // إنشاء مستخدم جديد
     const user = new User({
       name,
       email,
       password: hashedPassword,
-      role: role || 'user' // Role defaults to 'user'
+      role: role || 'user' // افتراضي user إذا ما تم تحديده
     });
 
     await user.save();
-    
+
     // إنشاء token
     const token = jwt.sign(
       { id: user._id, role: user.role },
@@ -33,7 +33,7 @@ exports.register = async (req, res) => {
       { expiresIn: '1h' }
     );
 
-    res.status(201).json({ 
+    res.status(201).json({
       message: "User created successfully",
       token,
       user: {
@@ -43,17 +43,17 @@ exports.register = async (req, res) => {
         role: user.role
       }
     });
-    
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
 // تسجيل دخول
-exports.login = async (req, res) => {
+const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    
+
     // البحث عن المستخدم
     const user = await User.findOne({ email });
     if (!user) {
@@ -83,17 +83,42 @@ exports.login = async (req, res) => {
         role: user.role
       }
     });
-    
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
+// إنشاء Shop Owner من قبل Admin
+const createShopOwner = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
 
-// ... existing code ...
+    // التحقق من وجود المستخدم
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
 
-// Make a user an admin
-exports.makeAdmin = async (req, res) => {
+    // تشفير كلمة المرور
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // إنشاء shop owner
+    const shopOwner = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role: 'shopowner'
+    });
+
+    res.status(201).json({ message: 'Shop Owner created successfully', shopOwner });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// ترقية مستخدم ليكون admin
+const makeAdmin = async (req, res) => {
   try {
     const userId = req.params.id;
     const user = await User.findByIdAndUpdate(
@@ -108,4 +133,12 @@ exports.makeAdmin = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+};
+
+// تصدير كل الدوال
+module.exports = {
+  register,
+  login,
+  createShopOwner,
+  makeAdmin
 };

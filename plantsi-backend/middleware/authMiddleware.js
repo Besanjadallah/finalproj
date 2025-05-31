@@ -1,11 +1,8 @@
 const jwt = require('jsonwebtoken');
 
-exports.isAuthenticated = (req, res, next) => {
+const isAuthenticated = (req, res, next) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
-  
-  if (!token) {
-    return res.status(401).json({ error: "Access denied. No token provided." });
-  }
+  if (!token) return res.status(401).json({ error: "No token provided" });
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -16,11 +13,25 @@ exports.isAuthenticated = (req, res, next) => {
   }
 };
 
-exports.isAdmin = (req, res, next) => {
+const adminOnly = (req, res, next) => {
+  if (req.user && req.user.role === 'admin') {
+    next();
+  } else {
+    res.status(403).json({ message: 'Admin access only' });
+  }
+};
+
+const isAdmin = (req, res, next) => {
   if (req.user?.role !== 'admin') {
-    return res.status(403).json({ 
-      error: "Access denied. Admin privileges required." 
+    return res.status(403).json({
+      error: "Access denied. Admin privileges required."
     });
   }
   next();
+};
+
+module.exports = {
+  isAuthenticated,
+  adminOnly,
+  isAdmin
 };
