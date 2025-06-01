@@ -43,7 +43,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       print("📤 Sending login request...");
       final response = await http.post(
-     Uri.parse('http://192.168.3.142:8080/api/users/login'),
+     Uri.parse('http://192.168.1.36:8080/api/users/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password}),
       );

@@ -4,7 +4,7 @@ import 'edit_products_page.dart';
 import 'delete_product_page.dart';
 import 'view_orders_page.dart';
 import 'manage_users_page.dart';
-import 'login_page.dart'; // إذا بدك ترجعي للّوجن عند تسجيل الخروج
+import 'login_page.dart'; 
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
