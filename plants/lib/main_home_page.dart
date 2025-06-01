@@ -67,18 +67,55 @@ class _MainHomePageState extends State<MainHomePage> {
     });
   }
 
-  Future<void> chooseImageAndSend() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.camera);
-    if (pickedFile != null) {
-      if (kIsWeb) {
-        Uint8List bytes = await pickedFile.readAsBytes();
-        await _uploadWebImage(bytes);
-      } else {
-        File file = File(pickedFile.path);
-        await _uploadMobileImage(file);
-      }
-    }
-  }
+ Future<void> chooseImageAndSend() async {
+  showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) {
+      return SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Pick from Gallery'),
+              onTap: () async {
+                final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+                Navigator.pop(context);
+                if (pickedFile != null) {
+                  if (kIsWeb) {
+                    Uint8List bytes = await pickedFile.readAsBytes();
+                    await _uploadWebImage(bytes);
+                  } else {
+                    File file = File(pickedFile.path);
+                    await _uploadMobileImage(file);
+                  }
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Take a Photo'),
+              onTap: () async {
+                final pickedFile = await _picker.pickImage(source: ImageSource.camera);
+                Navigator.pop(context);
+                if (pickedFile != null) {
+                  if (kIsWeb) {
+                    Uint8List bytes = await pickedFile.readAsBytes();
+                    await _uploadWebImage(bytes);
+                  } else {
+                    File file = File(pickedFile.path);
+                    await _uploadMobileImage(file);
+                  }
+                }
+              },
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
 
   Future<void> _uploadMobileImage(File imageFile) async {
     var request = http.MultipartRequest('POST', Uri.parse('http://10.0.2.2:8080/scan'));

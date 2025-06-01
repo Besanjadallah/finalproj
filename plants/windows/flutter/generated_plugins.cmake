@@ -4,10 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   file_selector_windows
-<<<<<<< HEAD
   url_launcher_windows
-=======
->>>>>>> origin/tasneem-upload
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
