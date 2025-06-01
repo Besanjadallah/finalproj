@@ -43,7 +43,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       print("📤 Sending login request...");
       final response = await http.post(
-     Uri.parse('http://192.168.1.36:8080/api/users/login'),
+        Uri.parse('http://192.168.1.36:8080/api/users/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password}),
       );
@@ -51,8 +51,8 @@ class _LoginPageState extends State<LoginPage> {
       print("📥 Raw response: ${response.body}");
       final data = jsonDecode(response.body);
 
-print("📬 Response status: ${response.statusCode}");
-print("📬 Response data: $data");
+      print("📬 Response status: ${response.statusCode}");
+      print("📬 Response data: $data");
 
       if (response.statusCode == 200) {
         print("✅ Login success");
@@ -60,8 +60,8 @@ print("📬 Response data: $data");
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', data['token']);
         await prefs.setString('role', data['user']['role']);
-        await prefs.setString('name', data['user']['name']);     // ✅ جديد
-        await prefs.setString('email', data['user']['email']);   // ✅ جديد
+        await prefs.setString('name', data['user']['name']);
+        await prefs.setString('email', data['user']['email']);
 
         if (!mounted) return;
 

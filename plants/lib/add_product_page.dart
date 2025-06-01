@@ -16,7 +16,6 @@ class _AddProductPageState extends State<AddProductPage> {
 
   void _submitProduct() {
     if (_formKey.currentState!.validate()) {
-      // هنا تقدر ترسل البيانات لقاعدة البيانات
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Product added successfully!'),

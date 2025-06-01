@@ -34,7 +34,7 @@ void main() async {
     ),
   );
 }
-
+//
 class PlantsiApp extends StatelessWidget {
   final String initialRoute;
 
@@ -52,7 +52,7 @@ class PlantsiApp extends StatelessWidget {
       routes: {
         '/stores': (context) => StoresPage(),
         '/welcome': (context) => const WelcomePage(),
-        '/login': (context) => const LoginPage(),
+      //  '/login': (context) => const LoginPage(),
         '/signup': (context) => const SignupPage(),
         '/profile': (context) => const ProfilePage(),
         '/admin': (context) => const AdminDashboard(),
