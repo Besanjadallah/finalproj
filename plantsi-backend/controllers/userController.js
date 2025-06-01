@@ -2,12 +2,14 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+
+
 // تسجيل مستخدم جديد
 const register = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, phone, address, password } = req.body;
 
-    // التحقق من وجود المستخدم
+    // التحقق من وجود المستخدم بالبريد
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ error: "Email already exists" });
@@ -20,13 +22,15 @@ const register = async (req, res) => {
     const user = new User({
       name,
       email,
+      phone,
+      address,
       password: hashedPassword,
-      role: role || 'user' // افتراضي user إذا ما تم تحديده
+      role: 'user'  // إجباري يكون user عند التسجيل
     });
 
     await user.save();
 
-    // إنشاء token
+    // إنشاء JWT
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
@@ -34,12 +38,14 @@ const register = async (req, res) => {
     );
 
     res.status(201).json({
-      message: "User created successfully",
+      message: "User registered successfully",
       token,
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
+        phone: user.phone,
+        address: user.address,
         role: user.role
       }
     });
@@ -47,9 +53,8 @@ const register = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-};
 
-// تسجيل دخول
+};
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -80,6 +85,8 @@ const login = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        phone: user.phone,
+        address: user.address,
         role: user.role
       }
     });
@@ -89,33 +96,117 @@ const login = async (req, res) => {
   }
 };
 
-// إنشاء Shop Owner من قبل Admin
+
+
+// إنشاء Shop Owner
 const createShopOwner = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, phone, address, password } = req.body;
 
-    // التحقق من وجود المستخدم
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ message: 'User already exists' });
+    // التأكد إذا المستخدم موجود بالبريد
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: "Email already exists" });
     }
 
     // تشفير كلمة المرور
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 12);
 
-    // إنشاء shop owner
-    const shopOwner = await User.create({
+    // إنشاء مستخدم برول shopowner
+    const shopOwner = new User({
       name,
       email,
+      phone,
+      address,
       password: hashedPassword,
       role: 'shopowner'
     });
 
-    res.status(201).json({ message: 'Shop Owner created successfully', shopOwner });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+    await shopOwner.save();
+
+    res.status(201).json({
+      message: "Shop owner created successfully",
+      shopOwner: {
+        id: shopOwner._id,
+        name: shopOwner.name,
+        email: shopOwner.email,
+        phone: shopOwner.phone,
+        address: shopOwner.address,
+        role: shopOwner.role
+      }
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  } 
+};
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select('-password'); // استبعاد كلمة المرور
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
+
+
+const getShopOwners = async (req, res) => {
+  try {
+    const shopOwners = await User.find({ role: 'shopowner' }).select('-password');
+    res.json(shopOwners);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const updateUser = async (req, res) => {
+  try {
+    const { name, email, phone, address, role } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { name, email, phone, address, role },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({ message: "User updated successfully", user });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.json({ message: "User deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+
+
+
 
 // ترقية مستخدم ليكون admin
 const makeAdmin = async (req, res) => {
@@ -135,10 +226,16 @@ const makeAdmin = async (req, res) => {
   }
 };
 
-// تصدير كل الدوال
+
+
 module.exports = {
   register,
   login,
   createShopOwner,
-  makeAdmin
+  makeAdmin,
+  getAllUsers,
+  getShopOwners,
+  getUserById,
+  updateUser,
+  deleteUser
 };

@@ -1,3 +1,5 @@
+//
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -5,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'profile_page.dart';
 import 'signup_page.dart';
 import 'admin_dashboard.dart';
+import 'shop_owner_dashboard.dart'; // استيراد واجهة Shop Owner
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -21,16 +24,17 @@ class _LoginPageState extends State<LoginPage> {
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       showDialog(
         context: context,
-        builder: (_) => AlertDialog(
-          title: const Text("Missing Info"),
-          content: const Text("Please fill in all fields."),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("OK"),
+        builder:
+            (_) => AlertDialog(
+              title: const Text("Missing Info"),
+              content: const Text("Please fill in all fields."),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("OK"),
+                ),
+              ],
             ),
-          ],
-        ),
       );
       return;
     }
@@ -48,20 +52,23 @@ class _LoginPageState extends State<LoginPage> {
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
-        // تخزين التوكن
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', data['token']);
         await prefs.setString('role', data['user']['role']);
 
         if (!mounted) return;
 
+        // التوجيه حسب نوع المستخدم
         if (data['user']['role'] == 'admin') {
-          // Navigator.pushReplacement(
-          //   context,
-          //   MaterialPageRoute(
-          //     builder: (_) => const AdminDashboard(),
-          //   ),
-          // );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const AdminDashboard()),
+          );
+        } else if (data['user']['role'] == 'shopowner') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const ShopOwnerDashboard()),
+          );
         } else {
           Navigator.pushReplacement(
             context,
@@ -74,32 +81,34 @@ class _LoginPageState extends State<LoginPage> {
         if (!mounted) return;
         showDialog(
           context: context,
-          builder: (_) => AlertDialog(
-            title: const Text("Error"),
-            content: Text(data['message'] ?? "Invalid email or password."),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("OK"),
+          builder:
+              (_) => AlertDialog(
+                title: const Text("Error"),
+                content: Text(data['message'] ?? "Invalid email or password."),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text("OK"),
+                  ),
+                ],
               ),
-            ],
-          ),
         );
       }
     } catch (e) {
       if (!mounted) return;
       showDialog(
         context: context,
-        builder: (_) => AlertDialog(
-          title: const Text("Error"),
-          content: Text('Failed to connect to server.\n$e'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("OK"),
+        builder:
+            (_) => AlertDialog(
+              title: const Text("Error"),
+              content: Text('Failed to connect to server.\n$e'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("OK"),
+                ),
+              ],
             ),
-          ],
-        ),
       );
     }
   }
@@ -209,7 +218,7 @@ class _LoginPageState extends State<LoginPage> {
                         color: Colors.green,
                         fontWeight: FontWeight.bold,
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
