@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'admin_dashboard.dart';
 import 'login_page.dart';
+
 import 'owner.dart';
+
 
 
 class WelcomePage extends StatelessWidget {
@@ -46,11 +48,17 @@ class WelcomePage extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {
+
   Navigator.push(
     context,
     MaterialPageRoute(builder: (_) => const  ShopOwnerDashboard()),
   );
 },
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ProfilePage()), // ✅ التعديل هنا
+                  );
 
                 child: const Text(
                   'Get Started',

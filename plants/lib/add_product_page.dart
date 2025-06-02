@@ -7,7 +7,7 @@ class AddProductPage extends StatefulWidget {
   @override
   State<AddProductPage> createState() => _AddProductPageState();
 }
-///
+
 class _AddProductPageState extends State<AddProductPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
@@ -16,7 +16,7 @@ class _AddProductPageState extends State<AddProductPage> {
 
   void _submitProduct() {
     if (_formKey.currentState!.validate()) {
-      // هنا تقدر ترسل البيانات لقاعدة البيانات
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Product added successfully!'),

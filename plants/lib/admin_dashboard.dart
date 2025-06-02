@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:plants/view_shop_owners_page.dart';
 import 'package:plants/view_shops_page.dart';
 import 'package:plants/view_users_page.dart';
@@ -11,6 +12,14 @@ import 'add_shop_page.dart';
 // import 'delete_account_page.dart';
 import 'login_page.dart';
 import 'profile_page.dart';
+
+import 'add_product_page.dart';
+import 'edit_products_page.dart';
+import 'delete_product_page.dart';
+import 'view_orders_page.dart';
+import 'manage_users_page.dart';
+import 'login_page.dart'; 
+
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});

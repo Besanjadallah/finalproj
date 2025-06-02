@@ -74,7 +74,8 @@ class _SignupPageState extends State<SignupPage> {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => ProfilePage(userName: resData['user']['name']),
+                      builder: (_) => const ProfilePage(),
+
                     ),
                   );
                 },
