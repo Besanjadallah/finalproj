@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'admin_dashboard.dart';
 import 'login_page.dart';
-import 'profile_page.dart'; // ✅ أضفنا هذا الاستيراد
+
+import 'owner.dart';
+
+
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -45,11 +48,18 @@ class WelcomePage extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {
+
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (_) => const  ShopOwnerDashboard()),
+  );
+},
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const ProfilePage()), // ✅ التعديل هنا
                   );
-                },
+
                 child: const Text(
                   'Get Started',
                   style: TextStyle(fontSize: 18),

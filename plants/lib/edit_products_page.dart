@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+
+import 'admin_dashboard.dart'; // تأكدي أنك ضيفتي هاي الصفحة عندك
+
 import 'admin_dashboard.dart';
+
 
 class EditProductsPage extends StatefulWidget {
   const EditProductsPage({super.key});
@@ -20,9 +24,17 @@ class _EditProductsPageState extends State<EditProductsPage> {
 
   void _saveChanges() {
     if (_formKey.currentState!.validate()) {
+
+      // احفظ التعديلات هنا
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Product updated successfully!')),
       );
+      // ممكن ترجع المستخدم للداشبورد أو تحدث القائمة
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Product updated successfully!')),
+      );
+
     }
   }
 
