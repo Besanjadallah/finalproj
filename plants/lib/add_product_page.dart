@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'admin_dashboard.dart';
 
+
 class AddProductPage extends StatefulWidget {
   const AddProductPage({super.key});
 
@@ -8,14 +9,16 @@ class AddProductPage extends StatefulWidget {
   State<AddProductPage> createState() => _AddProductPageState();
 }
 
+
 class _AddProductPageState extends State<AddProductPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-
+  //
   void _submitProduct() {
     if (_formKey.currentState!.validate()) {
+      // هنا تقدر ترسل البيانات لقاعدة البيانات
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -57,7 +60,11 @@ class _AddProductPageState extends State<AddProductPage> {
         padding: const EdgeInsets.all(20),
         child: Card(
           elevation: 6,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Form(
@@ -68,8 +75,13 @@ class _AddProductPageState extends State<AddProductPage> {
                     controller: _nameController,
                     hint: 'Product Name',
                     icon: Icons.local_florist,
-                    validator: (value) =>
-                        value == null || value.trim().isEmpty ? 'Enter product name' : null,
+
+                    validator:
+                        (value) =>
+                            value == null || value.trim().isEmpty
+                                ? 'Enter product name'
+                                : null,
+
                   ),
                   const SizedBox(height: 20),
                   _buildTextField(
@@ -80,7 +92,11 @@ class _AddProductPageState extends State<AddProductPage> {
                     validator: (value) {
                       if (value == null || value.isEmpty) return 'Enter price';
                       final price = double.tryParse(value);
-                      return price == null || price <= 0 ? 'Enter valid price' : null;
+
+                      return price == null || price <= 0
+                          ? 'Enter valid price'
+                          : null;
+
                     },
                   ),
                   const SizedBox(height: 20),
@@ -89,8 +105,13 @@ class _AddProductPageState extends State<AddProductPage> {
                     hint: 'Description',
                     icon: Icons.description,
                     maxLines: 3,
-                    validator: (value) =>
-                        value == null || value.trim().isEmpty ? 'Enter description' : null,
+
+                    validator:
+                        (value) =>
+                            value == null || value.trim().isEmpty
+                                ? 'Enter description'
+                                : null,
+
                   ),
                   const SizedBox(height: 30),
                   SizedBox(
@@ -98,7 +119,12 @@ class _AddProductPageState extends State<AddProductPage> {
                     child: ElevatedButton.icon(
                       onPressed: _submitProduct,
                       icon: const Icon(Icons.add_circle_outline),
-                      label: const Text('Add Product', style: TextStyle(fontSize: 18)),
+
+                      label: const Text(
+                        'Add Product',
+                        style: TextStyle(fontSize: 18),
+                      ),
+
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF8DBF67),
                         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -135,7 +161,12 @@ class _AddProductPageState extends State<AddProductPage> {
         hintText: hint,
         filled: true,
         fillColor: Colors.grey.shade200,
-        contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 20,
+          horizontal: 20,
+        ),
+
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
           borderSide: BorderSide.none,

@@ -27,34 +27,75 @@ class _ViewShopOwnersPageState extends State<ViewShopOwnersPage> {
       'phone': '0599001122',
       'address': 'Hebron - City Center',
     },
+    {
+      'name': 'Ahmad Taha',
+      'email': 'ahmad@gmail.com',
+      'phone': '0599112233',
+      'address': 'Nablus - Al-Makhfiya',
+    },
+    {
+      'name': 'Lina Awad',
+      'email': 'lina@hotmail.com',
+      'phone': '0599776655',
+      'address': 'Ramallah - Al-Tira',
+    },
+    {
+      'name': 'Sarah Rami',
+      'email': 'sarah@outlook.com',
+      'phone': '0599001122',
+      'address': 'Hebron - City Center',
+    },
+    {
+      'name': 'Ahmad Taha',
+      'email': 'ahmad@gmail.com',
+      'phone': '0599112233',
+      'address': 'Nablus - Al-Makhfiya',
+    },
+    {
+      'name': 'Lina Awad',
+      'email': 'lina@hotmail.com',
+      'phone': '0599776655',
+      'address': 'Ramallah - Al-Tira',
+    },
+    {
+      'name': 'Sarah Rami',
+      'email': 'sarah@outlook.com',
+      'phone': '0599001122',
+      'address': 'Hebron - City Center',
+    },
+
   ];
 
   void _deleteOwner(int index) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Delete Owner'),
-        content: const Text('Are you sure you want to delete this shop owner?'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                owners.removeAt(index);
-              });
-              Navigator.pop(context);
-            },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-  }
 
-  void _startChatWithOwner(String name) {
-    // هنا ممكن تربطيها بصفحة الدردشة لاحقاً
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Starting chat with $name...')),
+      builder:
+          (_) => AlertDialog(
+            title: const Text('Delete Owner'),
+            content: const Text(
+              'Are you sure you want to delete this shop owner?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    owners.removeAt(index);
+                  });
+                  Navigator.pop(context);
+                },
+                child: const Text(
+                  'Delete',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
+          ),
+
     );
   }
 
@@ -73,11 +114,14 @@ class _ViewShopOwnersPageState extends State<ViewShopOwnersPage> {
           builder: (context, constraints) {
             return GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: constraints.maxWidth > 900
-                    ? 3
-                    : constraints.maxWidth > 600
-                    ? 2
-                    : 1,
+
+                crossAxisCount:
+                    constraints.maxWidth > 900
+                        ? 3
+                        : constraints.maxWidth > 600
+                        ? 2
+                        : 1,
+
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
                 childAspectRatio: 1.6,
@@ -100,7 +144,9 @@ class _ViewShopOwnersPageState extends State<ViewShopOwnersPage> {
                           children: [
                             const Icon(Icons.person, color: Color(0xFF6D9773)),
                             const SizedBox(width: 8),
-                            Expanded(
+
+                            Flexible(
+
                               child: Text(
                                 owner['name']!,
                                 style: const TextStyle(
@@ -109,39 +155,60 @@ class _ViewShopOwnersPageState extends State<ViewShopOwnersPage> {
                                 ),
                               ),
                             ),
+
                             IconButton(
                               icon: const Icon(Icons.chat_bubble_outline, color: Colors.blueGrey),
                               tooltip: 'Chat with owner',
                               onPressed: () => _startChatWithOwner(owner['name']!),
                             ),
+
                           ],
                         ),
                         Row(
                           children: [
-                            const Icon(Icons.email, size: 18, color: Colors.grey),
+
+                            const Icon(
+                              Icons.email,
+                              size: 18,
+                              color: Colors.grey,
+                            ),
                             const SizedBox(width: 8),
-                            Expanded(child: Text(owner['email']!)),
+                            Flexible(child: Text(owner['email']!)),
+
                           ],
                         ),
                         Row(
                           children: [
-                            const Icon(Icons.phone, size: 18, color: Colors.grey),
+
+                            const Icon(
+                              Icons.phone,
+                              size: 18,
+                              color: Colors.grey,
+                            ),
                             const SizedBox(width: 8),
-                            Expanded(child: Text(owner['phone']!)),
+                            Flexible(child: Text(owner['phone']!)),
                           ],
                         ),
                         Row(
                           children: [
-                            const Icon(Icons.location_on, size: 18, color: Colors.grey),
+
+                            const Icon(
+                              Icons.location_on,
+                              size: 18,
+                              color: Colors.grey,
+                            ),
                             const SizedBox(width: 8),
-                            Expanded(child: Text(owner['address']!)),
+                            Flexible(child: Text(owner['address']!)),
+
                           ],
                         ),
                         Align(
                           alignment: Alignment.bottomRight,
                           child: IconButton(
                             icon: const Icon(Icons.delete, color: Colors.red),
+
                             tooltip: 'Delete owner',
+
                             onPressed: () => _deleteOwner(index),
                           ),
                         ),
@@ -157,6 +224,7 @@ class _ViewShopOwnersPageState extends State<ViewShopOwnersPage> {
     );
   }
 }
+
 
 // import 'package:flutter/material.dart';
 //
@@ -340,3 +408,4 @@ class _ViewShopOwnersPageState extends State<ViewShopOwnersPage> {
 //     );
 //   }
 // }
+

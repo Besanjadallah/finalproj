@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'admin_dashboard.dart'; // تأكدي أنك ضيفتي هاي الصفحة عندك
 
-import 'admin_dashboard.dart';
+=======
 
 
 class EditProductsPage extends StatefulWidget {
@@ -15,12 +15,16 @@ class EditProductsPage extends StatefulWidget {
 class _EditProductsPageState extends State<EditProductsPage> {
   final _formKey = GlobalKey<FormState>();
 
-  final TextEditingController _nameController =
-      TextEditingController(text: 'Rose Plant');
-  final TextEditingController _priceController =
-      TextEditingController(text: '15.99');
-  final TextEditingController _descriptionController =
-      TextEditingController(text: 'A beautiful rose plant for your garden.');
+
+  final TextEditingController _nameController = TextEditingController(
+    text: 'Rose Plant',
+  );
+  final TextEditingController _priceController = TextEditingController(
+    text: '15.99',
+  );
+  final TextEditingController _descriptionController = TextEditingController(
+    text: 'A beautiful rose plant for your garden.',
+  );
 
   void _saveChanges() {
     if (_formKey.currentState!.validate()) {
@@ -31,9 +35,11 @@ class _EditProductsPageState extends State<EditProductsPage> {
       );
       // ممكن ترجع المستخدم للداشبورد أو تحدث القائمة
 
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Product updated successfully!')),
       );
+
 
     }
   }
@@ -59,7 +65,11 @@ class _EditProductsPageState extends State<EditProductsPage> {
         padding: const EdgeInsets.all(20),
         child: Card(
           elevation: 6,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Form(
@@ -70,8 +80,13 @@ class _EditProductsPageState extends State<EditProductsPage> {
                     controller: _nameController,
                     hint: 'Product Name',
                     icon: Icons.local_florist,
-                    validator: (value) =>
-                        value == null || value.isEmpty ? 'Enter product name' : null,
+
+                    validator:
+                        (value) =>
+                            value == null || value.isEmpty
+                                ? 'Enter product name'
+                                : null,
+
                   ),
                   const SizedBox(height: 20),
                   _buildTextField(
@@ -79,8 +94,13 @@ class _EditProductsPageState extends State<EditProductsPage> {
                     hint: 'Price',
                     icon: Icons.attach_money,
                     inputType: TextInputType.number,
-                    validator: (value) =>
-                        value == null || value.isEmpty ? 'Enter price' : null,
+
+                    validator:
+                        (value) =>
+                            value == null || value.isEmpty
+                                ? 'Enter price'
+                                : null,
+
                   ),
                   const SizedBox(height: 20),
                   _buildTextField(
@@ -88,8 +108,13 @@ class _EditProductsPageState extends State<EditProductsPage> {
                     hint: 'Description',
                     icon: Icons.description,
                     maxLines: 3,
-                    validator: (value) =>
-                        value == null || value.isEmpty ? 'Enter description' : null,
+
+                    validator:
+                        (value) =>
+                            value == null || value.isEmpty
+                                ? 'Enter description'
+                                : null,
+
                   ),
                   const SizedBox(height: 30),
                   SizedBox(
@@ -137,8 +162,12 @@ class _EditProductsPageState extends State<EditProductsPage> {
         hintText: hint,
         filled: true,
         fillColor: Colors.grey.shade200,
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 20,
+          horizontal: 20,
+        ),
+
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
           borderSide: BorderSide.none,
