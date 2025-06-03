@@ -3,11 +3,13 @@ import 'package:fl_chart/fl_chart.dart';
 
 class AdminInsightsPage extends StatelessWidget {
   final List<Map<String, dynamic>> shopSales = [
+
     {'shop': 'Green Garden', 'sales': 250, 'topItem': 'Basil Plant'},
     {'shop': 'EcoPlants', 'sales': 180, 'topItem': 'Snake Plant'},
     {'shop': 'Cactus World', 'sales': 120, 'topItem': 'Mini Cactus'},
     {'shop': 'Leafy Lane', 'sales': 90, 'topItem': 'Fern'},
     {'shop': 'Bloom Bazaar', 'sales': 210, 'topItem': 'Orchid'},
+
   ];
 
   AdminInsightsPage({super.key});
@@ -18,6 +20,7 @@ class AdminInsightsPage extends StatelessWidget {
       0,
       (sum, item) => sum + (item['sales'] as int),
     );
+
 
     return Scaffold(
       backgroundColor: const Color(0xFFF4F1EE),
@@ -58,10 +61,12 @@ class AdminInsightsPage extends StatelessWidget {
                                   return SideTitleWidget(
                                     axisSide: AxisSide.bottom,
                                     child: Text(
+
                                       shopSales[index]['shop']
                                           .toString()
                                           .split(' ')
                                           .first,
+
                                       style: const TextStyle(fontSize: 12),
                                     ),
                                   );
@@ -70,12 +75,14 @@ class AdminInsightsPage extends StatelessWidget {
                               },
                             ),
                           ),
+
                           topTitles: AxisTitles(
                             sideTitles: SideTitles(showTitles: false),
                           ),
                           rightTitles: AxisTitles(
                             sideTitles: SideTitles(showTitles: false),
                           ),
+
                         ),
                         lineBarsData: [
                           LineChartBarData(
@@ -83,6 +90,7 @@ class AdminInsightsPage extends StatelessWidget {
                             color: const Color(0xFF6D9773),
                             barWidth: 3,
                             dotData: FlDotData(show: true),
+
                             belowBarData: BarAreaData(
                               show: true,
                               color: const Color(0xFF6D9773).withOpacity(0.2),
@@ -92,6 +100,7 @@ class AdminInsightsPage extends StatelessWidget {
                                 index.toDouble(),
                                 (shopSales[index]['sales'] as int).toDouble(),
                               );
+
                             }),
                           ),
                         ],
@@ -109,8 +118,10 @@ class AdminInsightsPage extends StatelessWidget {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: shopSales.length,
+
                     separatorBuilder:
                         (context, index) => const SizedBox(height: 16),
+
                     itemBuilder: (context, index) {
                       final shop = shopSales[index];
                       return Container(
@@ -124,15 +135,18 @@ class AdminInsightsPage extends StatelessWidget {
                               blurRadius: 8,
                               offset: const Offset(0, 3),
                             ),
+
                           ],
                         ),
                         child: Row(
                           children: [
+
                             const Icon(
                               Icons.local_florist,
                               color: Color(0xFF6D9773),
                               size: 32,
                             ),
+
                             const SizedBox(width: 16),
                             Expanded(
                               child: Column(
@@ -140,6 +154,7 @@ class AdminInsightsPage extends StatelessWidget {
                                 children: [
                                   Text(
                                     shop['shop'],
+
                                     style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -161,6 +176,7 @@ class AdminInsightsPage extends StatelessWidget {
                                 ],
                               ),
                             ),
+
                           ],
                         ),
                       );

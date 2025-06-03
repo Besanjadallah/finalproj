@@ -25,6 +25,7 @@ class _DeleteProductPageState extends State<DeleteProductPage> {
       'price': '8.99',
       'description': 'Low maintenance air-purifying plant.',
     },
+
   ];
 
   List<Map<String, String>> filteredProducts = [];
@@ -47,6 +48,7 @@ class _DeleteProductPageState extends State<DeleteProductPage> {
                 (product) => product['name']!.toLowerCase().contains(query),
               )
               .toList();
+
     });
   }
 
@@ -67,6 +69,7 @@ class _DeleteProductPageState extends State<DeleteProductPage> {
   void _confirmDelete(int index) {
     showDialog(
       context: context,
+
       builder:
           (context) => AlertDialog(
             title: const Text('Confirm Deletion'),
@@ -90,6 +93,7 @@ class _DeleteProductPageState extends State<DeleteProductPage> {
               ),
             ],
           ),
+
     );
   }
 
@@ -123,6 +127,7 @@ class _DeleteProductPageState extends State<DeleteProductPage> {
             _buildSearchField(),
             const SizedBox(height: 20),
             Expanded(
+
               child:
                   filteredProducts.isEmpty
                       ? const Center(
@@ -179,6 +184,7 @@ class _DeleteProductPageState extends State<DeleteProductPage> {
                           );
                         },
                       ),
+
             ),
           ],
         ),
@@ -194,10 +200,12 @@ class _DeleteProductPageState extends State<DeleteProductPage> {
         hintText: 'Search by product name',
         filled: true,
         fillColor: Colors.grey.shade200,
+
         contentPadding: const EdgeInsets.symmetric(
           vertical: 18,
           horizontal: 20,
         ),
+
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
           borderSide: BorderSide.none,

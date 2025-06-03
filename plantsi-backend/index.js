@@ -1,42 +1,55 @@
-require('dotenv').config({ path: __dirname + '/.env' }); // هذه السطر ضروري
-
-console.log('Checking environment variables:');
-console.log('PORT:', process.env.PORT);
-console.log('MONGO_URI:', process.env.MONGO_URI ? 'Exists' : 'Missing');
+require('dotenv').config({ path: __dirname + '/.env' }); // تحميل متغيرات البيئة
 
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
+
+// استيراد الراوتات
 const userRoutes = require('./routes/userRoutes');
+const scanRoute = require('./routes/scanRoute');
+const updateProfileRoute = require('./routes/updateProfileRoute');
+const questionRoutes = require('./routes/questionRoutes');
 
 const app = express();
 app.use(express.json());
-
-const cors = require('cors');
 app.use(cors());
 
-// تأكد من وجود متغيرات البيئة
+/* ──────────── فحص متغيرات البيئة ──────────── */
+console.log('🛠️ Checking environment variables:');
 if (!process.env.MONGO_URI) {
-  console.error('❌ Error: MONGO_URI is not defined in .env file');
+  console.error('❌ MONGO_URI is missing from .env file');
   process.exit(1);
+} else {
+  console.log('✅ MONGO_URI exists');
 }
+console.log('PORT:', process.env.PORT || 'default 8080');
 
-app.use('/', userRoutes);
-app.get('/',(req,res)=>{
-  res.json({message:"hello"})
-})
+/* ──────────── ربط الراوتات ──────────── */
+app.use('/api/users', userRoutes);              // تسجيل الدخول والتسجيل
+app.use('/api/scan', scanRoute);                // مسح الصور
+app.use('/api/profile', updateProfileRoute);    // تعديل بيانات البروفايل
+app.use('/api/questions', questionRoutes);      // إرسال الأسئلة
 
-const port = process.env.PORT || 8080;
+/* ──────────── مسار اختبار ──────────── */
+app.get('/', (req, res) => {
+  console.log("🌱 Root route hit!");
+  res.json({ message: "Welcome to Plantsi backend 🌿" });
+});
 
+/* ──────────── الاتصال بقاعدة البيانات ──────────── */
 mongoose.connect(process.env.MONGO_URI, {
-  serverSelectionTimeoutMS: 5000, // وقت انتظار أقل للكشف السريع عن الأخطاء
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000
 })
 .then(() => console.log('✅ Connected to MongoDB'))
 .catch(err => {
   console.error('❌ MongoDB connection error:', err.message);
-  process.exit(1); // إيقاف التطبيق إذا فشل الاتصال
+  process.exit(1);
 });
 
+/* ──────────── تشغيل السيرفر ──────────── */
+const port = process.env.PORT || 8080;
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`🚀 Server is running on port ${port}`);
 });
-

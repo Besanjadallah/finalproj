@@ -7,7 +7,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'profile_page.dart';
 import 'signup_page.dart';
 import 'admin_dashboard.dart';
+
 import 'shop_owner_dashboard.dart'; // استيراد واجهة Shop Owner
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -21,7 +23,10 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   Future<void> loginUser() async {
-    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+    final email = _emailController.text;
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
       showDialog(
         context: context,
         builder:
@@ -40,21 +45,28 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     try {
+      print("📤 Sending login request...");
       final response = await http.post(
-        Uri.parse('http://192.168.56.1:8080/login'),
+        Uri.parse('http://192.168.1.86:8080/api/users/login'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': _emailController.text,
-          'password': _passwordController.text,
-        }),
+        body: jsonEncode({'email': email, 'password': password}),
       );
 
+      print("📥 Raw response: ${response.body}");
       final data = jsonDecode(response.body);
 
+      print("📬 Response status: ${response.statusCode}");
+      print("📬 Response data: $data");
+
       if (response.statusCode == 200) {
+
+        print("✅ Login success");
+
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', data['token']);
         await prefs.setString('role', data['user']['role']);
+        await prefs.setString('name', data['user']['name']);
+        await prefs.setString('email', data['user']['email']);
 
         if (!mounted) return;
 
@@ -69,18 +81,18 @@ class _LoginPageState extends State<LoginPage> {
             context,
             MaterialPageRoute(builder: (_) => const ShopOwnerDashboard()),
           );
+
         } else {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-              builder: (_) => ProfilePage(userName: data['user']['name']),
-            ),
+            MaterialPageRoute(builder: (_) => const MainHomePage()),
           );
         }
       } else {
-        if (!mounted) return;
+        print("⚠️ Login failed: ${data['error'] ?? data['message']}");
         showDialog(
           context: context,
+
           builder:
               (_) => AlertDialog(
                 title: const Text("Error"),
@@ -91,11 +103,12 @@ class _LoginPageState extends State<LoginPage> {
                     child: const Text("OK"),
                   ),
                 ],
+
               ),
         );
       }
     } catch (e) {
-      if (!mounted) return;
+      print("❌ Exception during login: $e");
       showDialog(
         context: context,
         builder:

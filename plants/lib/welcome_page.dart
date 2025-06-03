@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'login_page.dart';
+
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -11,6 +13,7 @@ class WelcomePage extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           // الخلفية
+
           Image.asset('assets/images/bg.jpg', fit: BoxFit.cover),
 
           // ظل غامق فوق الخلفية
@@ -49,9 +52,10 @@ class WelcomePage extends StatelessWidget {
                 child: const Text(
                   'Get Started',
                   style: TextStyle(fontSize: 18),
+
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

@@ -1,58 +1,64 @@
-const User = require('../models/User');
+const User   = require('../models/User');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const jwt    = require('jsonwebtoken');
 
-
-//hi iam besan 
+ 
 // تسجيل مستخدم جديد
 const register = async (req, res) => {
   try {
     const { name, email, phone, address, password } = req.body;
 
     // التحقق من وجود المستخدم بالبريد
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ error: "Email already exists" });
+      return res.status(400).json({ error: 'Email already exists' });
     }
 
-    // تشفير كلمة المرور
+    /* تشفير كلمة المرور */
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // إنشاء مستخدم جديد
+
     const user = new User({
       name,
       email,
       phone,
       address,
       password: hashedPassword,
-      role: 'user'  // إجباري يكون user عند التسجيل
-    });
 
+      role: 'user'  // إجباري يكون user عند التسجيل
+
+    });
     await user.save();
 
-    // إنشاء JWT
+
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
 
+
     res.status(201).json({
       message: "User registered successfully",
+
       token,
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
+
         phone: user.phone,
         address: user.address,
         role: user.role
       }
     });
 
+
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
+
 
 };
 const login = async (req, res) => {
@@ -60,31 +66,33 @@ const login = async (req, res) => {
     const { email, password } = req.body;
 
     // البحث عن المستخدم
+
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ error: "Invalid credentials" });
+      return res.status(400).json({ error: 'Invalid credentials' });
     }
 
-    // التحقق من كلمة المرور
+    /* مطابقة كلمة المرور */
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ error: "Invalid credentials" });
+      return res.status(400).json({ error: 'Invalid credentials' });
     }
 
-    // إنشاء token
+    /* توليد JWT */
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
 
-    res.json({
-      message: "Login successful",
+    return res.json({
+      message: 'Login successful',
       token,
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
+
         phone: user.phone,
         address: user.address,
         role: user.role
@@ -166,10 +174,12 @@ const getUserById = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
     res.json(user);
+
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 };
+
 
 const updateUser = async (req, res) => {
   try {
@@ -210,21 +220,60 @@ const deleteUser = async (req, res) => {
 
 // ترقية مستخدم ليكون admin
 const makeAdmin = async (req, res) => {
+
   try {
     const userId = req.params.id;
+
     const user = await User.findByIdAndUpdate(
       userId,
       { role: 'admin' },
       { new: true }
     );
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(404).json({ error: 'User not found' });
     }
-    res.json({ message: "User promoted to admin", user });
+
+    return res.json({ message: 'User promoted to admin', user });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 };
+
+/* ───────────────────────── 4) Update Profile ─────────────────────────
+   - يعتمد على userId الآتي من:
+     • middleware (req.userId)  ← في حال استخدمت verifyToken
+     • أو من params (req.params.id) كخيار احتياطي
+--------------------------------------------------------------------- */
+exports.updateUserProfile = async (req, res) => {
+  try {
+    const userId = req.userId || req.params.id;
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID not provided' });
+    }
+
+    const { name, email, password } = req.body;
+
+    /* تحضير حقول التعديل */
+    const updates = {};
+    if (name)  updates.name  = name;
+    if (email) updates.email = email;
+    if (password) {
+      updates.password = await bcrypt.hash(password, 12);
+    }
+
+    /* تنفيذ التعديل */
+    const updatedUser = await User.findByIdAndUpdate(userId, updates, { new: true });
+    if (!updatedUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    return res.json({ message: 'User updated successfully', user: updatedUser });
+  } catch (err) {
+    console.error('Update error:', err);
+    return res.status(500).json({ error: err.message });
+  }
+};
+
 
 
 

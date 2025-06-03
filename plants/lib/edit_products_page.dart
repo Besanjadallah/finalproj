@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+
 import 'admin_dashboard.dart'; // تأكدي أنك ضيفتي هاي الصفحة عندك
+
+=======
+
 
 class EditProductsPage extends StatefulWidget {
   const EditProductsPage({super.key});
@@ -10,6 +14,7 @@ class EditProductsPage extends StatefulWidget {
 
 class _EditProductsPageState extends State<EditProductsPage> {
   final _formKey = GlobalKey<FormState>();
+
 
   final TextEditingController _nameController = TextEditingController(
     text: 'Rose Plant',
@@ -23,11 +28,19 @@ class _EditProductsPageState extends State<EditProductsPage> {
 
   void _saveChanges() {
     if (_formKey.currentState!.validate()) {
+
       // احفظ التعديلات هنا
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Product updated successfully!')),
       );
       // ممكن ترجع المستخدم للداشبورد أو تحدث القائمة
+
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Product updated successfully!')),
+      );
+
+
     }
   }
 
@@ -52,9 +65,11 @@ class _EditProductsPageState extends State<EditProductsPage> {
         padding: const EdgeInsets.all(20),
         child: Card(
           elevation: 6,
+
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
+
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Form(
@@ -65,11 +80,13 @@ class _EditProductsPageState extends State<EditProductsPage> {
                     controller: _nameController,
                     hint: 'Product Name',
                     icon: Icons.local_florist,
+
                     validator:
                         (value) =>
                             value == null || value.isEmpty
                                 ? 'Enter product name'
                                 : null,
+
                   ),
                   const SizedBox(height: 20),
                   _buildTextField(
@@ -77,11 +94,13 @@ class _EditProductsPageState extends State<EditProductsPage> {
                     hint: 'Price',
                     icon: Icons.attach_money,
                     inputType: TextInputType.number,
+
                     validator:
                         (value) =>
                             value == null || value.isEmpty
                                 ? 'Enter price'
                                 : null,
+
                   ),
                   const SizedBox(height: 20),
                   _buildTextField(
@@ -89,11 +108,13 @@ class _EditProductsPageState extends State<EditProductsPage> {
                     hint: 'Description',
                     icon: Icons.description,
                     maxLines: 3,
+
                     validator:
                         (value) =>
                             value == null || value.isEmpty
                                 ? 'Enter description'
                                 : null,
+
                   ),
                   const SizedBox(height: 30),
                   SizedBox(
@@ -141,10 +162,12 @@ class _EditProductsPageState extends State<EditProductsPage> {
         hintText: hint,
         filled: true,
         fillColor: Colors.grey.shade200,
+
         contentPadding: const EdgeInsets.symmetric(
           vertical: 20,
           horizontal: 20,
         ),
+
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
           borderSide: BorderSide.none,

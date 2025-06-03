@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+
 class ViewShopsPage extends StatefulWidget {
   const ViewShopsPage({super.key});
 
@@ -31,12 +32,14 @@ class _ViewShopsPageState extends State<ViewShopsPage> {
           builder: (context, constraints) {
             return GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+
                 crossAxisCount:
                     constraints.maxWidth > 900
                         ? 3
                         : constraints.maxWidth > 600
                         ? 2
                         : 1,
+
                 mainAxisSpacing: 20,
                 crossAxisSpacing: 20,
                 childAspectRatio: 1.8,
@@ -44,6 +47,7 @@ class _ViewShopsPageState extends State<ViewShopsPage> {
               itemCount: shops.length,
               itemBuilder: (context, index) {
                 final shop = shops[index];
+
                 return Card(
                   elevation: 6,
                   shape: RoundedRectangleBorder(
@@ -108,3 +112,4 @@ class _ViewShopsPageState extends State<ViewShopsPage> {
     );
   }
 }
+

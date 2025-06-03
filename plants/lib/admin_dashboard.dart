@@ -6,12 +6,23 @@ import 'package:plants/view_users_page.dart';
 import 'AdminInsightsPage.dart';
 import 'add_shop_owner_page.dart';
 //import 'add_shop_page.dart';
+
 // import 'view_shop_owners_page.dart';
 // import 'search_page.dart';
 // import 'delete_account_page.dart';
 import 'login_page.dart';
 import 'profile_page.dart';
+
 import 'edit_admin_profile_page.dart';
+
+
+import 'add_product_page.dart';
+import 'edit_products_page.dart';
+import 'delete_product_page.dart';
+import 'view_orders_page.dart';
+import 'manage_users_page.dart';
+import 'login_page.dart'; 
+
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
@@ -27,16 +38,18 @@ class AdminDashboard extends StatelessWidget {
           'Admin Dashboard',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        //
+
         actions: [
           IconButton(
             icon: const Icon(Icons.account_circle_rounded, size: 28),
             tooltip: 'My Account',
             onPressed: () {
+
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const EditAdminProfilePage()),
               );
+
             },
           ),
         ],
@@ -58,30 +71,36 @@ class AdminDashboard extends StatelessWidget {
               icon: Icons.person_add_alt_1,
               label: 'Add Shop Owner',
               onTap: () {
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const AddShopOwnerPage()),
                 );
+
               },
             ),
             _buildOptionTile(
               icon: Icons.view_list_rounded,
               label: 'View Users',
               onTap: () {
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const ViewUsersPage()),
                 );
+
               },
             ),
             _buildOptionTile(
               icon: Icons.view_list_rounded,
               label: ' View shop',
               onTap: () {
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const ViewShopsPage()),
                 );
+
               },
             ),
             _buildOptionTile(
@@ -102,6 +121,7 @@ class AdminDashboard extends StatelessWidget {
                   context,
                   MaterialPageRoute(builder: (_) => AdminInsightsPage()),
                 );
+
               },
             ),
             _buildOptionTile(
@@ -111,7 +131,7 @@ class AdminDashboard extends StatelessWidget {
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (_) => const LoginPage()),
-                  (route) => false,
+                      (route) => false,
                 );
               },
             ),
@@ -135,6 +155,7 @@ class AdminDashboard extends StatelessWidget {
           horizontal: 20,
           vertical: 12,
         ),
+
         leading: Icon(icon, size: 32, color: const Color(0xFF6D9773)),
         title: Text(
           label,

@@ -14,21 +14,27 @@ class _ViewUsersPageState extends State<ViewUsersPage> {
       'email': 'sara@gmail.com',
       'phone': '0599112233',
       'address': 'Hebron - City Center',
+
       'purchases': {'Green Garden': 55, 'EcoPlants': 45},
+
     },
     {
       'name': 'Omar Taha',
       'email': 'omar@hotmail.com',
       'phone': '0599776655',
       'address': 'Jericho - Al-Quds St.',
+
       'purchases': {'Green Garden': 30, 'EcoPlants': 70},
+
     },
     {
       'name': 'Hiba Awad',
       'email': 'hiba@outlook.com',
       'phone': '0599001122',
       'address': 'Tulkarm - Al-Madina St.',
+
       'purchases': {'Green Garden': 80, 'EcoPlants': 20},
+
     },
   ];
 
@@ -60,6 +66,7 @@ class _ViewUsersPageState extends State<ViewUsersPage> {
                     width: constraints.maxWidth,
                     padding: const EdgeInsets.all(16),
                     child: DataTable(
+
                       headingRowColor: MaterialStateProperty.all(
                         const Color(0xFFE2E8CE),
                       ),
