@@ -104,18 +104,59 @@ class ShopOwnerDashboard extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.add_box),
+            tooltip: 'Add New Plant',
             onPressed: () {
               Navigator.push(context, MaterialPageRoute(builder: (_) => const AddPlantPage()));
             },
           ),
           IconButton(
             icon: const Icon(Icons.store),
+            tooltip: 'Edit Shop Info',
             onPressed: () {
               Navigator.push(context, MaterialPageRoute(builder: (_) => const EditShopInfoPage()));
             },
           ),
+          // 🔔 إشعارات
+          Stack(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.notifications),
+                tooltip: 'Notifications',
+                onPressed: () {
+                  // يمكن استبداله بصفحة NotificationsPage لاحقًا
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("No new notifications")),
+                  );
+                },
+              ),
+              Positioned(
+                right: 11,
+                top: 11,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Text(
+                    '3',
+                    style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          // 👤 بروفايل
+          IconButton(
+            icon: const Icon(Icons.account_circle),
+            tooltip: 'Profile',
+            onPressed: () {
+             // Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfilePage()));
+            },
+          ),
         ],
       ),
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

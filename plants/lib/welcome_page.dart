@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'admin_dashboard.dart';
-import 'login_page.dart';
-
-import 'owner.dart';
-
-
+import 'owner.dart'; // فيها ShopOwnerDashboard
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -17,55 +13,52 @@ class WelcomePage extends StatelessWidget {
         children: [
           // الخلفية
           Image.asset(
-            'assets/images/bg.jpg',
+            'assets/images/bg.jpg', // تأكدي إنها مضافة في pubspec.yaml
             fit: BoxFit.cover,
           ),
 
-          // ظل غامق فوق الخلفية
+          // طبقة شفافة داكنة فوق الخلفية
           Container(
             color: Colors.black.withOpacity(0.4),
           ),
 
           // المحتوى بالنص
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'Welcome to Plants',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 40),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green.shade700,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Welcome to Plants',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.5,
                   ),
                 ),
-                onPressed: () {
-
-  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (_) => const  ShopOwnerDashboard()),
-  );
-},
-
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const ProfilePage()), // ✅ التعديل هنا
-                  );
-
-                child: const Text(
-                  'Get Started',
-                  style: TextStyle(fontSize: 18),
+                const SizedBox(height: 40),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF6D9773),
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    elevation: 6,
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const AdminDashboard()),
+                    );
+                  },
+                  child: const Text(
+                    'Get Started',
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
