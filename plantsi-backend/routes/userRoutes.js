@@ -19,7 +19,6 @@ const {
   isAdmin
 } = require('../middleware/authMiddleware');
 
-// ✅ Public routes
 router.post('/register', register);
 router.post('/login', login);
 
