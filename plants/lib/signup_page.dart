@@ -43,7 +43,7 @@ class _SignupPageState extends State<SignupPage> {
     try {
       final dio = Dio();
       final response = await dio.post(
-        'http://192.168.56.1:8080/register',
+        'http:// 192.168.1.20:8080/register',
         options: Options(headers: {'Content-Type': 'application/json'}),
         data: {
           'name': fullNameController.text,
@@ -78,10 +78,7 @@ class _SignupPageState extends State<SignupPage> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder:
-                              (_) => ProfilePage(
-                                userName: resData['user']['name'],
-                              ),
+                          builder: (_) => const ProfilePage(),
                         ),
                       );
                     },

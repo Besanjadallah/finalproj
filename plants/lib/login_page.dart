@@ -7,9 +7,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'profile_page.dart';
 import 'signup_page.dart';
 import 'admin_dashboard.dart';
+//import 'shop_owner_dashboard.dart';
+import 'main_home_page.dart';
+import 'owner.dart';
 
-import 'shop_owner_dashboard.dart'; // استيراد واجهة Shop Owner
-
+const String apiBaseUrl = 'http://192.168.1.20:8080'; // Use your backend IP and port
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -47,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       print("📤 Sending login request...");
       final response = await http.post(
-        Uri.parse('http://192.168.1.86:8080/api/users/login'),
+        Uri.parse('http:// 192.168.1.20:8080/api/users/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password}),
       );

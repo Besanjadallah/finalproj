@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'admin_dashboard.dart'; // تأكدي أنك ضيفتي هاي الصفحة عندك
-
-=======
-
+import 'admin_dashboard.dart';
 
 class EditProductsPage extends StatefulWidget {
   const EditProductsPage({super.key});
