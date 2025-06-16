@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+const String apiBaseUrl = 'http://192.168.56.1:8080'; // بدلي IP لو بدك
 
 class ViewUsersPage extends StatefulWidget {
   const ViewUsersPage({super.key});
@@ -8,40 +12,71 @@ class ViewUsersPage extends StatefulWidget {
 }
 
 class _ViewUsersPageState extends State<ViewUsersPage> {
-  List<Map<String, dynamic>> users = [
-    {
-      'name': 'Sara Khalil',
-      'email': 'sara@gmail.com',
-      'phone': '0599112233',
-      'address': 'Hebron - City Center',
+  final dio = Dio();
+  List<Map<String, dynamic>> users = [];
 
-      'purchases': {'Green Garden': 55, 'EcoPlants': 45},
+  @override
+  void initState() {
+    super.initState();
+    fetchUsers();
+  }
 
-    },
-    {
-      'name': 'Omar Taha',
-      'email': 'omar@hotmail.com',
-      'phone': '0599776655',
-      'address': 'Jericho - Al-Quds St.',
+  Future<void> fetchUsers() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
 
-      'purchases': {'Green Garden': 30, 'EcoPlants': 70},
+    if (token == null) return;
 
-    },
-    {
-      'name': 'Hiba Awad',
-      'email': 'hiba@outlook.com',
-      'phone': '0599001122',
-      'address': 'Tulkarm - Al-Madina St.',
+    try {
+      final response = await dio.get(
+        '$apiBaseUrl/api/users/normal',
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
 
-      'purchases': {'Green Garden': 80, 'EcoPlants': 20},
+      final data = response.data as List;
 
-    },
-  ];
+      setState(() {
+        users = data
+            .where((user) => user['role'] == 'user')
+            .map((user) => {
+                  'id': user['_id'],
+                  'name': user['name'],
+                  'email': user['email'],
+                  'phone': user['phone'],
+                  'address': user['address'],
+                })
+            .toList();
+      });
+    } catch (e) {
+      print('Error fetching users: $e');
+    }
+  }
 
-  void _deleteUser(int index) {
-    setState(() {
-      users.removeAt(index);
-    });
+  Future<void> _deleteUser(int index) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final userId = users[index]['id'];
+
+    try {
+      await dio.delete(
+        '$apiBaseUrl/api/users/$userId',
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+
+      setState(() {
+        users.removeAt(index);
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User deleted successfully!')),
+      );
+    } catch (e) {
+      print('Error deleting user: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to delete user')),
+      );
+    }
   }
 
   @override
@@ -53,75 +88,35 @@ class _ViewUsersPageState extends State<ViewUsersPage> {
         backgroundColor: const Color(0xFF6D9773),
         centerTitle: true,
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minWidth: constraints.maxWidth),
-              child: IntrinsicHeight(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: Container(
-                    width: constraints.maxWidth,
-                    padding: const EdgeInsets.all(16),
-                    child: DataTable(
-
-                      headingRowColor: MaterialStateProperty.all(
-                        const Color(0xFFE2E8CE),
-                      ),
-                      dataRowHeight: 80,
-                      headingRowHeight: 60,
-                      columnSpacing: 36,
-                      border: TableBorder.all(color: Colors.grey.shade300),
-                      columns: const [
-                        DataColumn(label: Text('Name')),
-                        DataColumn(label: Text('Email')),
-                        DataColumn(label: Text('Phone')),
-                        DataColumn(label: Text('Address')),
-                        DataColumn(label: Text('Purchases')),
-                        DataColumn(label: Text('Delete')),
+      body: users.isEmpty
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: users.length,
+              itemBuilder: (context, index) {
+                final user = users[index];
+                return Card(
+                  elevation: 4,
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  child: ListTile(
+                    leading: const Icon(Icons.person, color: Color(0xFF6D9773)),
+                    title: Text(user['name']),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Email: ${user['email']}'),
+                        Text('Phone: ${user['phone']}'),
+                        Text('Address: ${user['address']}'),
                       ],
-                      rows: List.generate(users.length, (index) {
-                        final user = users[index];
-                        return DataRow(
-                          cells: [
-                            DataCell(Text(user['name'])),
-                            DataCell(Text(user['email'])),
-                            DataCell(Text(user['phone'])),
-                            DataCell(Text(user['address'])),
-                            DataCell(
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children:
-                                    (user['purchases'] as Map<String, int>)
-                                        .entries
-                                        .map(
-                                          (e) => Text('${e.key}: ${e.value}%'),
-                                        )
-                                        .toList(),
-                              ),
-                            ),
-                            DataCell(
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.delete,
-                                  color: Colors.red,
-                                ),
-                                onPressed: () => _deleteUser(index),
-                              ),
-                            ),
-                          ],
-                        );
-                      }),
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () => _deleteUser(index),
                     ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
-          );
-        },
-      ),
     );
   }
 }

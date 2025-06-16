@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'login_page.dart';
 import 'signup_page.dart';
-import 'profile_page.dart';
+//import 'profile_page.dart';
 import 'welcome_page.dart';
 import 'admin_dashboard.dart';
 import 'stores_page.dart';
@@ -54,7 +54,7 @@ class PlantsiApp extends StatelessWidget {
         '/welcome': (context) => const WelcomePage(),
       //  '/login': (context) => const LoginPage(),
         '/signup': (context) => const SignupPage(),
-        '/profile': (context) => const ProfilePage(),
+        //'/profile': (context) => const ProfilePage(),
         '/admin': (context) => const AdminDashboard(),
         '/cart': (context) => const CartPage(),
       },

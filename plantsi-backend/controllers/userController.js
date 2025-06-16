@@ -179,6 +179,26 @@ const getUserById = async (req, res) => {
     return res.status(500).json({ error: err.message });
   }
 };
+const getNormalUsers = async (req, res) => {
+  try {
+    const users = await User.find({ role: 'user' }).select('-password');
+    
+    // نحول _id → id:String
+    const usersWithId = users.map(user => ({
+      id: user._id.toString(),
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      address: user.address,
+      role: user.role
+    }));
+
+    res.json(usersWithId);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 
 
 const updateUser = async (req, res) => {
@@ -244,25 +264,28 @@ const makeAdmin = async (req, res) => {
      • middleware (req.userId)  ← في حال استخدمت verifyToken
      • أو من params (req.params.id) كخيار احتياطي
 --------------------------------------------------------------------- */
-exports.updateUserProfile = async (req, res) => {
+const updateUserProfile = async (req, res) => {
   try {
     const userId = req.userId || req.params.id;
     if (!userId) {
       return res.status(400).json({ error: 'User ID not provided' });
     }
 
-    const { name, email, password } = req.body;
+    const { name, email, password, phone, address, profileImage } = req.body;
 
     /* تحضير حقول التعديل */
     const updates = {};
     if (name)  updates.name  = name;
     if (email) updates.email = email;
+    if (phone) updates.phone = phone;
+    if (address) updates.address = address;
+    if (profileImage) updates.profileImage = profileImage;
     if (password) {
       updates.password = await bcrypt.hash(password, 12);
     }
 
     /* تنفيذ التعديل */
-    const updatedUser = await User.findByIdAndUpdate(userId, updates, { new: true });
+    const updatedUser = await User.findByIdAndUpdate(userId, updates, { new: true }).select('-password');
     if (!updatedUser) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -277,6 +300,7 @@ exports.updateUserProfile = async (req, res) => {
 
 
 
+
 module.exports = {
   register,
   login,
@@ -286,5 +310,7 @@ module.exports = {
   getShopOwners,
   getUserById,
   updateUser,
-  deleteUser
+  deleteUser,
+  getNormalUsers,
+  updateUserProfile
 };

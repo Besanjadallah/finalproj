@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'profile_page.dart';
+//import 'profile_page.dart';
+import 'edit_profile_page.dart';
+import 'main_home_page.dart';
+const String apiBaseUrl = 'http://192.168.56.1:8080'; // Use your backend IP and port
 
 class SignupPage extends StatefulWidget {
   const SignupPage({Key? key}) : super(key: key);
@@ -43,7 +46,7 @@ class _SignupPageState extends State<SignupPage> {
     try {
       final dio = Dio();
       final response = await dio.post(
-        'http:// 192.168.1.20:8080/register',
+  '$apiBaseUrl/api/users/register',
         options: Options(headers: {'Content-Type': 'application/json'}),
         data: {
           'name': fullNameController.text,
@@ -78,7 +81,7 @@ class _SignupPageState extends State<SignupPage> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const ProfilePage(),
+                          builder: (_) => const MainHomePage(),
                         ),
                       );
                     },

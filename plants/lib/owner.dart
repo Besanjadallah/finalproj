@@ -1,51 +1,32 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-
-// ========== بيانات وهمية ==========
+import 'editshopinfopage.dart';
+import 'edit_profile_page.dart';
 final List<Map<String, dynamic>> plants = [
   {
     'name': 'Basil',
     'price': 10.0,
     'quantity': 3,
+    'quality': 'Excellent',
+    'type': 'Indoor',
     'image': 'assets/images/bg.jpg',
   },
   {
     'name': 'Mint',
     'price': 12.5,
     'quantity': 8,
+    'quality': 'Good',
+    'type': 'Outdoor',
     'image': 'assets/images/bg.jpg',
   },
   {
     'name': 'Cactus',
     'price': 15.0,
     'quantity': 20,
-    'image': 'assets/images/bg.jpg',
-  },
-  {
-    'name': 'Rosemary',
-    'price': 9.5,
-    'quantity': 2,
-    'image': 'assets/images/bg.jpg',
-  },
-  {
-    'name': 'Orchid',
-    'price': 25.0,
-    'quantity': 6,
-    'image': 'assets/images/bg.jpg',
-  },
-  {
-    'name': 'Lavender',
-    'price': 14.0,
-    'quantity': 4,
-    'image': 'assets/images/bg.jpg',
-  },
-  {
-    'name': 'Fern',
-    'price': 11.0,
-    'quantity': 7,
+    'quality': 'Excellent',
+    'type': 'Decorative',
     'image': 'assets/images/bg.jpg',
   },
 ];
@@ -63,33 +44,9 @@ final List<Map<String, dynamic>> orders = [
     'price': 12.5,
     'date': DateTime.now().subtract(const Duration(days: 1)),
   },
-  {
-    'user': 'Yousef Zaid',
-    'plant': 'Rosemary',
-    'price': 9.5,
-    'date': DateTime.now().subtract(const Duration(days: 3)),
-  },
-  {
-    'user': 'Lina Omar',
-    'plant': 'Orchid',
-    'price': 25.0,
-    'date': DateTime.now().subtract(const Duration(days: 2)),
-  },
-  {
-    'user': 'Tariq Saleh',
-    'plant': 'Lavender',
-    'price': 14.0,
-    'date': DateTime.now().subtract(const Duration(days: 4)),
-  },
-  {
-    'user': 'Nour Salem',
-    'plant': 'Fern',
-    'price': 11.0,
-    'date': DateTime.now().subtract(const Duration(days: 5)),
-  },
 ];
 
-// ========== شاشة لوحة تحكم صاحب المحل ==========
+// ================== ShopOwnerDashboard ==================
 class ShopOwnerDashboard extends StatelessWidget {
   const ShopOwnerDashboard({super.key});
 
@@ -110,53 +67,26 @@ class ShopOwnerDashboard extends StatelessWidget {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.store),
-            tooltip: 'Edit Shop Info',
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const EditShopInfoPage()));
-            },
-          ),
-          // 🔔 إشعارات
-          Stack(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.notifications),
-                tooltip: 'Notifications',
-                onPressed: () {
-                  // يمكن استبداله بصفحة NotificationsPage لاحقًا
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("No new notifications")),
-                  );
-                },
-              ),
-              Positioned(
-                right: 11,
-                top: 11,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Text(
-                    '3',
-                    style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          // 👤 بروفايل
-          IconButton(
             icon: const Icon(Icons.account_circle),
             tooltip: 'Profile',
             onPressed: () {
-             // Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfilePage()));
+
+             Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const EditProfilePage()),
+              );
             },
           ),
+          IconButton(
+  icon: const Icon(Icons.store),
+  tooltip: 'Edit Shop Info',
+  onPressed: () {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => const EditShopInfoPage()));
+  },
+),
+
         ],
       ),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -169,33 +99,8 @@ class ShopOwnerDashboard extends StatelessWidget {
               children: plants.map((plant) => _plantCard(context, plant)).toList(),
             ),
             const SizedBox(height: 24),
-            _sectionTitle("Insights"),
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: [
-                _insightCard("Top Selling: Cactus"),
-                _insightCard("Monthly Orders: 12"),
-              ],
-            ),
-            const SizedBox(height: 24),
             _sectionTitle("Recent Orders"),
             ...orders.map((order) => _orderTile(order)).toList(),
-            const SizedBox(height: 20),
-            Center(
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6D9773),
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                icon: const Icon(Icons.picture_as_pdf),
-                label: const Text("Export Monthly Report"),
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const DetailedReportPage()));
-                },
-              ),
-            ),
           ],
         ),
       ),
@@ -228,15 +133,24 @@ class ShopOwnerDashboard extends StatelessWidget {
                 Text(plant['name'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 const SizedBox(height: 4),
                 Text("Price: \$${plant['price']}", style: const TextStyle(fontSize: 14)),
-                Text("Qty: ${plant['quantity']}",
-                    style: TextStyle(fontSize: 14, color: isLow ? Colors.red : Colors.black)),
+                Text("Qty: ${plant['quantity']}", style: TextStyle(fontSize: 14, color: isLow ? Colors.red : Colors.black)),
+                Text("Quality: ${plant['quality']}", style: const TextStyle(fontSize: 14, color: Colors.blueGrey)),
+                Text("Type: ${plant['type']}", style: const TextStyle(fontSize: 14, color: Colors.teal)),
               ],
             ),
           ),
           Column(
             children: [
-              IconButton(onPressed: () {}, icon: const Icon(Icons.edit, color: Colors.orange)),
-              IconButton(onPressed: () {}, icon: const Icon(Icons.delete, color: Colors.red)),
+              IconButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => EditPlantPage(plant: plant)));
+                },
+                icon: const Icon(Icons.edit, color: Colors.orange),
+              ),
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.delete, color: Colors.red),
+              ),
             ],
           )
         ],
@@ -267,23 +181,9 @@ class ShopOwnerDashboard extends StatelessWidget {
       ),
     );
   }
-
-  Widget _insightCard(String title) {
-    return Container(
-      width: 160,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2))],
-      ),
-      child: Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-    );
-  }
 }
 
-// باقي الصفحات
-
+// ================== AddPlantPage ==================
 class AddPlantPage extends StatefulWidget {
   const AddPlantPage({super.key});
 
@@ -293,6 +193,11 @@ class AddPlantPage extends StatefulWidget {
 
 class _AddPlantPageState extends State<AddPlantPage> {
   File? _imageFile;
+  String _selectedQuality = 'Excellent';
+  String _selectedType = 'Indoor';
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _quantityController = TextEditingController();
 
   Future<void> _pickImage() async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -312,23 +217,51 @@ class _AddPlantPageState extends State<AddPlantPage> {
         child: ListView(
           children: [
             if (_imageFile != null)
-              Center(
-                child: Image.file(_imageFile!, height: 150),
-              ),
+              Center(child: Image.file(_imageFile!, height: 150)),
             TextButton.icon(
               icon: const Icon(Icons.image, color: Color(0xFF6D9773)),
               label: const Text("Choose Image", style: TextStyle(color: Color(0xFF6D9773))),
               onPressed: _pickImage,
             ),
             const SizedBox(height: 12),
-            TextField(decoration: const InputDecoration(labelText: 'Plant Name')),
+            TextField(controller: _nameController, decoration: const InputDecoration(labelText: 'Plant Name')),
             const SizedBox(height: 12),
-            TextField(decoration: const InputDecoration(labelText: 'Price'), keyboardType: TextInputType.number),
+            TextField(controller: _priceController, decoration: const InputDecoration(labelText: 'Price'), keyboardType: TextInputType.number),
             const SizedBox(height: 12),
-            TextField(decoration: const InputDecoration(labelText: 'Quantity'), keyboardType: TextInputType.number),
+            TextField(controller: _quantityController, decoration: const InputDecoration(labelText: 'Quantity'), keyboardType: TextInputType.number),
+            const SizedBox(height: 12),
+            Text("Quality"),
+            DropdownButton<String>(
+              value: _selectedQuality,
+              isExpanded: true,
+              items: ['Excellent', 'Good', 'Fair', 'Poor']
+                  .map((quality) => DropdownMenuItem(value: quality, child: Text(quality)))
+                  .toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedQuality = value!;
+                });
+              },
+            ),
+            const SizedBox(height: 12),
+            Text("Plant Type"),
+            DropdownButton<String>(
+              value: _selectedType,
+              isExpanded: true,
+              items: ['Indoor', 'Outdoor', 'Decorative']
+                  .map((type) => DropdownMenuItem(value: type, child: Text(type)))
+                  .toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedType = value!;
+                });
+              },
+            ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                // منطق الإضافة هنا
+              },
               style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6D9773)),
               child: const Text("Save Plant"),
             )
@@ -339,60 +272,104 @@ class _AddPlantPageState extends State<AddPlantPage> {
   }
 }
 
-class EditShopInfoPage extends StatelessWidget {
-  const EditShopInfoPage({super.key});
+// ================== EditPlantPage ==================
+class EditPlantPage extends StatefulWidget {
+  final Map<String, dynamic> plant;
+
+  const EditPlantPage({super.key, required this.plant});
+
+  @override
+  State<EditPlantPage> createState() => _EditPlantPageState();
+}
+
+class _EditPlantPageState extends State<EditPlantPage> {
+  File? _imageFile;
+  late String _selectedQuality;
+  late String _selectedType;
+  late TextEditingController _nameController;
+  late TextEditingController _priceController;
+  late TextEditingController _quantityController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.plant['name']);
+    _priceController = TextEditingController(text: widget.plant['price'].toString());
+    _quantityController = TextEditingController(text: widget.plant['quantity'].toString());
+    _selectedQuality = widget.plant['quality'] ?? 'Excellent';
+    _selectedType = widget.plant['type'] ?? 'Indoor';
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Shop Info'), backgroundColor: const Color(0xFF6D9773)),
+      appBar: AppBar(title: const Text('Edit Plant'), backgroundColor: const Color(0xFF6D9773)),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
+        child: ListView(
           children: [
-            TextField(decoration: const InputDecoration(labelText: 'Shop Name')),
+            if (_imageFile != null)
+              Center(child: Image.file(_imageFile!, height: 150))
+            else
+              Center(child: Image.asset(widget.plant['image'], height: 150)),
+            TextButton.icon(
+              icon: const Icon(Icons.image, color: Color(0xFF6D9773)),
+              label: const Text("Change Image", style: TextStyle(color: Color(0xFF6D9773))),
+              onPressed: _pickImage,
+            ),
             const SizedBox(height: 12),
-            TextField(decoration: const InputDecoration(labelText: 'Address')),
+            TextField(controller: _nameController, decoration: const InputDecoration(labelText: 'Plant Name')),
             const SizedBox(height: 12),
-            TextField(decoration: const InputDecoration(labelText: 'Phone Number'), keyboardType: TextInputType.phone),
+            TextField(controller: _priceController, decoration: const InputDecoration(labelText: 'Price'), keyboardType: TextInputType.number),
+            const SizedBox(height: 12),
+            TextField(controller: _quantityController, decoration: const InputDecoration(labelText: 'Quantity'), keyboardType: TextInputType.number),
+            const SizedBox(height: 12),
+            Text("Quality"),
+            DropdownButton<String>(
+              value: _selectedQuality,
+              isExpanded: true,
+              items: ['Excellent', 'Good', 'Fair', 'Poor']
+                  .map((quality) => DropdownMenuItem(value: quality, child: Text(quality)))
+                  .toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedQuality = value!;
+                });
+              },
+            ),
+            const SizedBox(height: 12),
+            Text("Plant Type"),
+            DropdownButton<String>(
+              value: _selectedType,
+              isExpanded: true,
+              items: ['Indoor', 'Outdoor', 'Decorative']
+                  .map((type) => DropdownMenuItem(value: type, child: Text(type)))
+                  .toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedType = value!;
+                });
+              },
+            ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                // منطق التعديل هنا
+              },
               style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6D9773)),
-              child: const Text("Update Info"),
+              child: const Text("Update Plant"),
             )
           ],
         ),
-      ),
-    );
-  }
-}
-
-class DetailedReportPage extends StatelessWidget {
-  const DetailedReportPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Monthly Report'), backgroundColor: const Color(0xFF6D9773)),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(16.0),
-        itemCount: orders.length,
-        separatorBuilder: (context, index) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          final order = orders[index];
-          return Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            elevation: 2,
-            child: ListTile(
-              contentPadding: const EdgeInsets.all(16),
-              leading: const Icon(Icons.check_circle_outline, color: Color(0xFF6D9773)),
-              title: Text(order['user'], style: const TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text("${order['plant']} - \$${order['price']}"),
-              trailing: Text(DateFormat('yMMMd').format(order['date'])),
-            ),
-          );
-        },
       ),
     );
   }

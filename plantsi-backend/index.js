@@ -6,9 +6,9 @@ const cors = require('cors');
 
 // استيراد الراوتات
 const userRoutes = require('./routes/userRoutes');
-const scanRoute = require('./routes/scanRoute');
-const updateProfileRoute = require('./routes/updateProfileRoute');
-const questionRoutes = require('./routes/questionRoutes');
+const shopRoutes = require('./routes/shopRoutes');
+const plantRoutes = require('./routes/plantRoutes');
+const orderRoutes = require('./routes/orderRoutes');
 
 const app = express();
 app.use(express.json());
@@ -25,10 +25,10 @@ if (!process.env.MONGO_URI) {
 console.log('PORT:', process.env.PORT || 'default 8080');
 
 /* ──────────── ربط الراوتات ──────────── */
-app.use('/api/users', userRoutes);              // تسجيل الدخول والتسجيل
-app.use('/api/scan', scanRoute);                // مسح الصور
-app.use('/api/profile', updateProfileRoute);    // تعديل بيانات البروفايل
-app.use('/api/questions', questionRoutes);      // إرسال الأسئلة
+app.use('/api/users', userRoutes);                // تسجيل الدخول والتسجيل
+app.use('/api/shops', shopRoutes);                // راوتر المحل
+app.use('/api/plants', plantRoutes);              // راوتر النباتات
+app.use('/api/orders', orderRoutes);              // راوتر الطلبات
 
 /* ──────────── مسار اختبار ──────────── */
 app.get('/', (req, res) => {
