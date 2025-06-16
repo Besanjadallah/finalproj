@@ -69,33 +69,40 @@ class _ViewShopOwnersPageState extends State<ViewShopOwnersPage> {
   void _deleteOwner(int index) {
     showDialog(
       context: context,
-
-      builder:
-          (_) => AlertDialog(
-            title: const Text('Delete Owner'),
-            content: const Text(
-              'Are you sure you want to delete this shop owner?',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    owners.removeAt(index);
-                  });
-                  Navigator.pop(context);
-                },
-                child: const Text(
-                  'Delete',
-                  style: TextStyle(color: Colors.red),
-                ),
-              ),
-            ],
+      builder: (_) => AlertDialog(
+        title: const Text('Delete Owner'),
+        content: const Text(
+          'Are you sure you want to delete this shop owner?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
           ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                owners.removeAt(index);
+              });
+              Navigator.pop(context);
+            },
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
+  void _startChatWithOwner(String ownerName) {
+    // TODO: Implement chat functionality
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Chat with $ownerName will be implemented soon!'),
+        duration: const Duration(seconds: 2),
+      ),
     );
   }
 

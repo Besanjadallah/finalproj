@@ -18,12 +18,12 @@ class _AddShopOwnerPageState extends State<AddShopOwnerPage> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      // هنا من الممكن إرسال البيانات للسيرفر أو تخزينها
+      // Here you can send data to server or store it
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Shop owner added successfully!')),
       );
 
-      // تفريغ الحقول
+      // Clear fields
       _nameController.clear();
       _emailController.clear();
       _phoneController.clear();
@@ -51,48 +51,34 @@ class _AddShopOwnerPageState extends State<AddShopOwnerPage> {
                 controller: _nameController,
                 label: 'Full Name',
                 icon: Icons.person,
-
-                validator:
-                    (value) => value!.isEmpty ? 'Enter owner name' : null,
-
+                validator: (value) => value!.isEmpty ? 'Enter owner name' : null,
               ),
               _buildTextField(
                 controller: _emailController,
                 label: 'Email',
                 icon: Icons.email,
                 keyboardType: TextInputType.emailAddress,
-
-                validator:
-                    (value) =>
-                        value!.contains('@') ? null : 'Enter valid email',
-
+                validator: (value) => value!.contains('@') ? null : 'Enter valid email',
+              ),
               _buildTextField(
                 controller: _phoneController,
                 label: 'Phone Number',
                 icon: Icons.phone,
                 keyboardType: TextInputType.phone,
-
-                validator:
-                    (value) =>
-                        value!.length < 7 ? 'Enter valid phone number' : null,
-
+                validator: (value) => value!.length < 7 ? 'Enter valid phone number' : null,
               ),
               _buildTextField(
                 controller: _addressController,
                 label: 'Address',
                 icon: Icons.home,
-
                 validator: (value) => value!.isEmpty ? 'Enter address' : null,
-
               ),
               _buildTextField(
                 controller: _passwordController,
                 label: 'Password',
                 icon: Icons.lock,
                 obscureText: true,
-                validator:
-                    (value) => value!.length < 6 ? 'Password too short' : null,
-
+                validator: (value) => value!.length < 6 ? 'Password too short' : null,
               ),
               const SizedBox(height: 30),
               ElevatedButton.icon(
@@ -105,7 +91,6 @@ class _AddShopOwnerPageState extends State<AddShopOwnerPage> {
                 ),
                 icon: const Icon(Icons.add),
                 label: const Text('Add Owner', style: TextStyle(fontSize: 18)),
-
                 onPressed: _submitForm,
               ),
             ],

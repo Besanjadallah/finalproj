@@ -9,7 +9,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'ask_question_page.dart';
 
 
-import 'profile_page.dart';
+//import 'profile_page.dart';
+import 'edit_profile_page.dart';
 import 'favorites_page.dart';
 import 'cart_page.dart';
 import 'store_detail_page.dart';
@@ -250,7 +251,7 @@ class _MainHomePageState extends State<MainHomePage> {
                       IconButton(
                         icon: const Icon(Icons.person, color: Colors.white),
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfilePage()));
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const EditProfilePage()));
                         },
                       ),
                     ],
