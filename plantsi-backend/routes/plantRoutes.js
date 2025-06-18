@@ -3,7 +3,11 @@ const router = express.Router();
 const Plant = require('../models/Plant');
 
 
+<<<<<<< HEAD
 const { isAuthenticated, shopOwnerOnly } = require('../middlewares/authMiddleware');
+=======
+const { isAuthenticated, shopOwnerOnly } = require('../middleware/authMiddleware');
+>>>>>>> tasneem-upload
 
 // Add plant
 router.post('/add', isAuthenticated, shopOwnerOnly, async (req, res) => {

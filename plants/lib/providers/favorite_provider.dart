@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+=======
+>>>>>>> tasneem-upload
 
 class FavoriteItem {
   final String id;
@@ -11,6 +14,7 @@ class FavoriteItem {
   final String image;
 
   FavoriteItem({required this.id, required this.name, required this.image});
+<<<<<<< HEAD
 
   factory FavoriteItem.fromJson(Map<String, dynamic> json) {
     final plant = json['plantId'];
@@ -42,10 +46,22 @@ class FavoriteProvider with ChangeNotifier {
     }
   }
 
+=======
+}
+
+class FavoriteProvider with ChangeNotifier {
+  final List<FavoriteItem> _favoriteItems = [];
+
+  // ✅ هذا هو getter للمفضلات
+  List<FavoriteItem> get favorites => _favoriteItems;
+
+  // ✅ هذا للفحص إذا المنتج مفضل
+>>>>>>> tasneem-upload
   bool isFavorite(String id) {
     return _favoriteItems.any((item) => item.id == id);
   }
 
+<<<<<<< HEAD
   Future<void> toggleFavorite(String id, String name, String image) async {
   final existingIndex = _favoriteItems.indexWhere((item) => item.id == id);
 
@@ -109,5 +125,22 @@ class FavoriteProvider with ChangeNotifier {
     } catch (e) {
       debugPrint("خطأ في إزالة المفضلة: $e");
     }
+=======
+  // ✅ هذه لتبديل حالة المفضلة
+  void toggleFavorite(String id, String name, String image) {
+    final existingIndex = _favoriteItems.indexWhere((item) => item.id == id);
+    if (existingIndex >= 0) {
+      _favoriteItems.removeAt(existingIndex);
+    } else {
+      _favoriteItems.add(FavoriteItem(id: id, name: name, image: image));
+    }
+    notifyListeners();
+  }
+
+  // ✅ هذه هي الدالة اللي كانت ناقصة
+  void removeFavorite(String id) {
+    _favoriteItems.removeWhere((item) => item.id == id);
+    notifyListeners();
+>>>>>>> tasneem-upload
   }
 }

@@ -3,9 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'editshopinfopage.dart';
+<<<<<<< HEAD
 //import 'edit_profile_page.dart';
 import 'profile_page.dart';
 
+=======
+import 'edit_profile_page.dart';
+>>>>>>> tasneem-upload
 final List<Map<String, dynamic>> plants = [
   {
     'name': 'Basil',
@@ -75,8 +79,12 @@ class ShopOwnerDashboard extends StatelessWidget {
 
              Navigator.push(
                 context,
+<<<<<<< HEAD
                MaterialPageRoute(builder: (_) => const ProfilePage()),
 
+=======
+                MaterialPageRoute(builder: (_) => const EditProfilePage()),
+>>>>>>> tasneem-upload
               );
             },
           ),

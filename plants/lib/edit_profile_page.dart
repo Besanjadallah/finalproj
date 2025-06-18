@@ -1,9 +1,18 @@
+<<<<<<< HEAD
 import 'dart:io';
+=======
+import 'dart:convert';
+import 'dart:io';
+
+>>>>>>> tasneem-upload
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+<<<<<<< HEAD
 import 'dart:convert';
+=======
+>>>>>>> tasneem-upload
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -22,6 +31,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   File? _selectedImage;
   final ImagePicker _picker = ImagePicker();
 
+<<<<<<< HEAD
   @override
   void initState() {
     super.initState();
@@ -40,6 +50,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+=======
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+
+>>>>>>> tasneem-upload
     if (pickedFile != null) {
       setState(() {
         _selectedImage = File(pickedFile.path);
@@ -50,13 +65,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Future<void> _saveChanges() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
+<<<<<<< HEAD
     print('📦 Token used in request: $token');
+=======
+>>>>>>> tasneem-upload
 
     if (token == null) {
       _showMessage('User not logged in');
       return;
     }
 
+<<<<<<< HEAD
     final url = Uri.parse('http://192.168.1.213:8080/api/users/update-profile');
     final request = http.MultipartRequest('PUT', url);
     request.headers['Authorization'] = 'Bearer $token';
@@ -88,6 +107,44 @@ class _EditProfilePageState extends State<EditProfilePage> {
       _showMessage('✅ Profile updated!');
     } else {
       _showMessage('❌ Something went wrong');
+=======
+    String? base64Image;
+    if (_selectedImage != null) {
+      final bytes = await _selectedImage!.readAsBytes();
+      base64Image = base64Encode(bytes);
+    }
+
+    final url = Uri.parse('http://192.168.1.15:8080/api/users/update-profile');
+    final response = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'name': _nameController.text,
+        'email': _emailController.text,
+        'password': _passwordController.text.isEmpty
+            ? null
+            : _passwordController.text,
+        'phone': _phoneController.text,
+        'address': _addressController.text,
+        'profileImage': base64Image,  // نحط الصورة base64
+      }),
+    );
+
+    try {
+      final data = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        _showMessage("✅ Profile updated successfully");
+        Navigator.pop(context);
+        print("📥 Response Data: $data");
+      } else {
+        _showMessage(data['error'] ?? data['message'] ?? "❌ Failed to update profile");
+      }
+    } catch (e) {
+      _showMessage("❌ Unexpected error occurred");
+>>>>>>> tasneem-upload
     }
   }
 
@@ -97,10 +154,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
       builder: (_) => AlertDialog(
         content: Text(msg),
         actions: [
+<<<<<<< HEAD
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text("OK"),
           )
+=======
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text("OK"))
+>>>>>>> tasneem-upload
         ],
       ),
     );
@@ -118,6 +179,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
         child: ListView(
           children: [
             const SizedBox(height: 20),
+<<<<<<< HEAD
+=======
+
+            // الصورة:
+>>>>>>> tasneem-upload
             Center(
               child: GestureDetector(
                 onTap: _pickImage,
@@ -140,31 +206,71 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ),
               ),
             ),
+<<<<<<< HEAD
             const SizedBox(height: 20),
             TextField(
               controller: _nameController,
               decoration: const InputDecoration(labelText: 'Name', border: OutlineInputBorder()),
+=======
+
+            const SizedBox(height: 20),
+
+            TextField(
+              controller: _nameController,
+              decoration: const InputDecoration(
+                labelText: 'Name',
+                border: OutlineInputBorder(),
+              ),
+>>>>>>> tasneem-upload
             ),
             const SizedBox(height: 20),
             TextField(
               controller: _emailController,
+<<<<<<< HEAD
               decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
+=======
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                border: OutlineInputBorder(),
+              ),
+>>>>>>> tasneem-upload
             ),
             const SizedBox(height: 20),
             TextField(
               controller: _passwordController,
               obscureText: true,
+<<<<<<< HEAD
               decoration: const InputDecoration(labelText: 'New Password (optional)', border: OutlineInputBorder()),
+=======
+              decoration: const InputDecoration(
+                labelText: 'New Password (optional)',
+                border: OutlineInputBorder(),
+              ),
+>>>>>>> tasneem-upload
             ),
             const SizedBox(height: 20),
             TextField(
               controller: _phoneController,
+<<<<<<< HEAD
               decoration: const InputDecoration(labelText: 'Phone Number', border: OutlineInputBorder()),
+=======
+              decoration: const InputDecoration(
+                labelText: 'Phone Number',
+                border: OutlineInputBorder(),
+              ),
+>>>>>>> tasneem-upload
             ),
             const SizedBox(height: 20),
             TextField(
               controller: _addressController,
+<<<<<<< HEAD
               decoration: const InputDecoration(labelText: 'Address', border: OutlineInputBorder()),
+=======
+              decoration: const InputDecoration(
+                labelText: 'Address',
+                border: OutlineInputBorder(),
+              ),
+>>>>>>> tasneem-upload
             ),
             const SizedBox(height: 30),
             ElevatedButton(

@@ -26,7 +26,10 @@ void main() async {
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => FavoriteProvider()), // ✅ إضافة Provider المفضلة
       ],
+<<<<<<< HEAD
       
+=======
+>>>>>>> tasneem-upload
       child: PlantsiApp(
         initialRoute: token != null
             ? (role == 'admin' ? '/admin' : '/profile')

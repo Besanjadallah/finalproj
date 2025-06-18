@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -86,6 +87,20 @@ class _FavoritesPageState extends State<FavoritesPage> {
 
   @override
   Widget build(BuildContext context) {
+=======
+import 'package:provider/provider.dart';
+import 'plant_detail_page.dart';
+import 'providers/favorite_provider.dart';
+
+class FavoritesPage extends StatelessWidget {
+  const FavoritesPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final favoriteProvider = Provider.of<FavoriteProvider>(context);
+    final favorites = favoriteProvider.favorites;
+
+>>>>>>> tasneem-upload
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Favorites'),
@@ -96,6 +111,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
           : ListView.builder(
               itemCount: favorites.length,
               itemBuilder: (ctx, index) {
+<<<<<<< HEAD
                 final plant = favorites[index];
 
                 return Card(
@@ -113,6 +129,34 @@ class _FavoritesPageState extends State<FavoritesPage> {
                       icon: const Icon(Icons.delete, color: Colors.red),
                       onPressed: () => removeFavorite(plant['plantId']),
                     ),
+=======
+                final item = favorites[index];
+                return Card(
+                  margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: ListTile(
+                    leading: Image.asset(item.image, width: 50, height: 50, fit: BoxFit.cover),
+                    title: Text(item.name),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () {
+                        favoriteProvider.removeFavorite(item.id);
+                      },
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => PlantDetailPage(
+                            imagePath: item.image,
+                            name: item.name,
+                            temperature: 'N/A',
+                            lighting: 'N/A',
+                            watering: 'N/A',
+                          ),
+                        ),
+                      );
+                    },
+>>>>>>> tasneem-upload
                   ),
                 );
               },

@@ -42,5 +42,8 @@ flutter:
   assets:
     - assets/images/bg.jpg
     - assets/images/
+<<<<<<< HEAD
     - assets/images/profile.png
     - assets/images/default_avatar.png
+=======
+>>>>>>> tasneem-upload
