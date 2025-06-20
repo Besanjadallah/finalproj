@@ -1,13 +1,9 @@
-//
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-//import 'profile_page.dart';
 import 'signup_page.dart';
 import 'admin_dashboard.dart';
-//import 'shop_owner_dashboard.dart';
 import 'main_home_page.dart';
 import 'owner.dart';
 
@@ -79,12 +75,13 @@ class _LoginPageState extends State<LoginPage> {
             MaterialPageRoute(builder: (_) => const AdminDashboard()),
           );
         } else if (data['user']['role'] == 'shopowner') {
+          await prefs.setString('shopId', data['user']['shopId'] ?? '');
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => const ShopOwnerDashboard()),
           );
 
-        } else {
+        } else { 
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => const MainHomePage()),

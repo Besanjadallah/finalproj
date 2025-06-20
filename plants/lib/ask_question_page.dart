@@ -16,9 +16,9 @@ class _AskQuestionPageState extends State<AskQuestionPage> {
     final questionText = _questionController.text.trim();
 
     if (questionText.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please enter a question")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Please enter a question")));
       return;
     }
 
@@ -28,10 +28,7 @@ class _AskQuestionPageState extends State<AskQuestionPage> {
       Uri.parse('http://192.168.3.142:5000/api/questions/add'),
 
       headers: {'Content-Type': 'application/json'},
-      body: json.encode({
-        'text': questionText,
-        'user': 'Anonymous',
-      }),
+      body: json.encode({'text': questionText, 'user': 'Anonymous'}),
     );
 
     if (response.statusCode == 201) {
@@ -74,12 +71,12 @@ class _AskQuestionPageState extends State<AskQuestionPage> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: submitQuestion,
-              child: const Text("Submit"),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF8DBF67),
                 foregroundColor: Colors.white,
               ),
-            )
+              child: const Text("Submit"),
+            ),
           ],
         ),
       ),

@@ -1,7 +1,7 @@
 const User   = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt    = require('jsonwebtoken');
-
+const Shop = require('../models/shop');
  
 // تسجيل مستخدم جديد
 const register = async (req, res) => {
@@ -61,29 +61,36 @@ const register = async (req, res) => {
 
 
 };
+
+
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    // البحث عن المستخدم
 
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
 
-    /* مطابقة كلمة المرور */
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
 
-    /* توليد JWT */
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
+
+    // ⭐ استرجاع shopId إذا كان المستخدم من نوع shopowner
+    let shopId = null;
+    if (user.role === 'shopowner') {
+      const shop = await Shop.findOne({ ownerId: user._id });
+      if (shop) {
+        shopId = shop._id.toString();
+      }
+    }
 
     return res.json({
       message: 'Login successful',
@@ -92,10 +99,10 @@ const login = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-
         phone: user.phone,
         address: user.address,
-        role: user.role
+        role: user.role,
+        shopId // ✅ مهم جداً: frontend رح يحتاجه
       }
     });
 
@@ -103,8 +110,6 @@ const login = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
-
 
 // إنشاء Shop Owner
 const createShopOwner = async (req, res) => {
@@ -166,19 +171,6 @@ const getShopOwners = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
-const getUserById = async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id).select('-password');
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-    res.json(user);
-
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-};
 const getNormalUsers = async (req, res) => {
   try {
     const users = await User.find({ role: 'user' }).select('-password');
@@ -196,6 +188,22 @@ const getNormalUsers = async (req, res) => {
     res.json(usersWithId);
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+};
+
+
+
+
+const getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.json(user);
+
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
   }
 };
 
@@ -233,6 +241,37 @@ const deleteUser = async (req, res) => {
   }
 };
 
+const deleteShopOwner = async (req, res) => {
+  try {
+    const owner = await User.findOneAndDelete({ _id: req.params.id, role: 'shopowner' });
+    if (!owner) {
+      return res.status(404).json({ error: "ShopOwner not found" });
+    }
+    res.json({ message: "ShopOwner deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const updateShopOwner = async (req, res) => {
+  try {
+    const { name, email, phone, address } = req.body;
+
+    const updated = await User.findOneAndUpdate(
+      { _id: req.params.id, role: 'shopowner' },
+      { name, email, phone, address },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    if (!updated) {
+      return res.status(404).json({ error: "ShopOwner not found" });
+    }
+
+    res.json({ message: "ShopOwner updated successfully", shopOwner: updated });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 
 
@@ -312,5 +351,7 @@ module.exports = {
   updateUser,
   deleteUser,
   getNormalUsers,
-  updateUserProfile
+  updateUserProfile,
+  deleteShopOwner,
+  updateShopOwner
 };

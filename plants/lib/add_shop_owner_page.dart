@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+const String apiBaseUrl = 'http://192.168.56.1:8080'; // عدلي IP حسب شبكتك
+final Dio dio = Dio();
 
 class AddShopOwnerPage extends StatefulWidget {
   const AddShopOwnerPage({super.key});
@@ -16,19 +21,51 @@ class _AddShopOwnerPageState extends State<AddShopOwnerPage> {
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      // Here you can send data to server or store it
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Shop owner added successfully!')),
-      );
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
 
-      // Clear fields
-      _nameController.clear();
-      _emailController.clear();
-      _phoneController.clear();
-      _addressController.clear();
-      _passwordController.clear();
+      if (token == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Unauthorized: No token found')),
+        );
+        return;
+      }
+
+      try {
+        final response = await dio.post(
+          '$apiBaseUrl/api/users/create-shopowner',
+          data: {
+            'name': _nameController.text.trim(),
+            'email': _emailController.text.trim(),
+            'phone': _phoneController.text.trim(),
+            'address': _addressController.text.trim(),
+            'password': _passwordController.text.trim(),
+          },
+          options: Options(
+            headers: {'Authorization': 'Bearer $token'},
+          ),
+        );
+
+        if (response.statusCode == 201) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('✅ Shop owner added successfully')),
+          );
+
+          // Clear fields
+          _nameController.clear();
+          _emailController.clear();
+          _phoneController.clear();
+          _addressController.clear();
+          _passwordController.clear();
+        }
+      } catch (e) {
+        print('❌ Error: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('❌ Failed to add shop owner')),
+        );
+      }
     }
   }
 

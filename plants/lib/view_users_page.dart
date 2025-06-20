@@ -39,7 +39,7 @@ class _ViewUsersPageState extends State<ViewUsersPage> {
         users = data
             .where((user) => user['role'] == 'user')
             .map((user) => {
-                  'id': user['_id'],
+                  'id': user['id'],
                   'name': user['name'],
                   'email': user['email'],
                   'phone': user['phone'],

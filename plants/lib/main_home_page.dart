@@ -6,8 +6,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:typed_data';
 import 'dart:io' show File;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'ask_question_page.dart';
-
 
 //import 'profile_page.dart';
 import 'edit_profile_page.dart';
@@ -68,66 +66,79 @@ class _MainHomePageState extends State<MainHomePage> {
     });
   }
 
- Future<void> chooseImageAndSend() async {
-  showModalBottomSheet(
-    context: context,
-    builder: (BuildContext context) {
-      return SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('Pick from Gallery'),
-              onTap: () async {
-                final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-                Navigator.pop(context);
-                if (pickedFile != null) {
-                  if (kIsWeb) {
-                    Uint8List bytes = await pickedFile.readAsBytes();
-                    await _uploadWebImage(bytes);
-                  } else {
-                    File file = File(pickedFile.path);
-                    await _uploadMobileImage(file);
+  Future<void> chooseImageAndSend() async {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Pick from Gallery'),
+                onTap: () async {
+                  final pickedFile = await _picker.pickImage(
+                    source: ImageSource.gallery,
+                  );
+                  Navigator.pop(context);
+                  if (pickedFile != null) {
+                    if (kIsWeb) {
+                      Uint8List bytes = await pickedFile.readAsBytes();
+                      await _uploadWebImage(bytes);
+                    } else {
+                      File file = File(pickedFile.path);
+                      await _uploadMobileImage(file);
+                    }
                   }
-                }
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Take a Photo'),
-              onTap: () async {
-                final pickedFile = await _picker.pickImage(source: ImageSource.camera);
-                Navigator.pop(context);
-                if (pickedFile != null) {
-                  if (kIsWeb) {
-                    Uint8List bytes = await pickedFile.readAsBytes();
-                    await _uploadWebImage(bytes);
-                  } else {
-                    File file = File(pickedFile.path);
-                    await _uploadMobileImage(file);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Take a Photo'),
+                onTap: () async {
+                  final pickedFile = await _picker.pickImage(
+                    source: ImageSource.camera,
+                  );
+                  Navigator.pop(context);
+                  if (pickedFile != null) {
+                    if (kIsWeb) {
+                      Uint8List bytes = await pickedFile.readAsBytes();
+                      await _uploadWebImage(bytes);
+                    } else {
+                      File file = File(pickedFile.path);
+                      await _uploadMobileImage(file);
+                    }
                   }
-                }
-              },
-            ),
-          ],
-        ),
-      );
-    },
-  );
-}
-
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   Future<void> _uploadMobileImage(File imageFile) async {
-    var request = http.MultipartRequest('POST', Uri.parse('http://10.0.2.2:8080/scan'));
-    request.files.add(await http.MultipartFile.fromPath('image', imageFile.path));
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('http://10.0.2.2:8080/scan'),
+    );
+    request.files.add(
+      await http.MultipartFile.fromPath('image', imageFile.path),
+    );
     var response = await request.send();
     _handleResponse(response);
   }
 
   Future<void> _uploadWebImage(Uint8List bytes) async {
-    var request = http.MultipartRequest('POST', Uri.parse('http://localhost:8080/scan'));
-    request.files.add(http.MultipartFile.fromBytes('image', bytes, filename: 'web_img.jpg'));
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('http://localhost:8080/scan'),
+    );
+    request.files.add(
+      http.MultipartFile.fromBytes('image', bytes, filename: 'web_img.jpg'),
+    );
     var response = await request.send();
     _handleResponse(response);
   }
@@ -137,11 +148,17 @@ class _MainHomePageState extends State<MainHomePage> {
       final res = await response.stream.bytesToString();
       showDialog(
         context: context,
-        builder: (_) => AlertDialog(
-          title: const Text("Matched Plant"),
-          content: Text(res),
-          actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text("OK"))],
-        ),
+        builder:
+            (_) => AlertDialog(
+              title: const Text("Matched Plant"),
+              content: Text(res),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("OK"),
+                ),
+              ],
+            ),
       );
     } else {
       print("Upload failed");
@@ -156,10 +173,11 @@ class _MainHomePageState extends State<MainHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredStores = stores.where((store) {
-      final name = store['name'].toString().toLowerCase();
-      return name.contains(searchQuery);
-    }).toList();
+    final filteredStores =
+        stores.where((store) {
+          final name = store['name'].toString().toLowerCase();
+          return name.contains(searchQuery);
+        }).toList();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF0F8F4),
@@ -173,21 +191,34 @@ class _MainHomePageState extends State<MainHomePage> {
             child: Column(
               children: [
                 const SizedBox(height: 8),
-                const Text("🌿 Plant Shops", style: TextStyle(fontSize: 22, color: Colors.white, fontWeight: FontWeight.bold)),
+                const Text(
+                  "🌿 Plant Shops",
+                  style: TextStyle(
+                    fontSize: 22,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 10),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Row(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.notifications_none, color: Colors.white),
+                        icon: const Icon(
+                          Icons.notifications_none,
+                          color: Colors.white,
+                        ),
                         onPressed: () {
                           showDialog(
                             context: context,
-                            builder: (_) => const AlertDialog(
-                              title: Text("Notifications"),
-                              content: Text("You have new messages about your plants 🌿."),
-                            ),
+                            builder:
+                                (_) => const AlertDialog(
+                                  title: Text("Notifications"),
+                                  content: Text(
+                                    "You have new messages about your plants 🌿.",
+                                  ),
+                                ),
                           );
                         },
                       ),
@@ -221,7 +252,10 @@ class _MainHomePageState extends State<MainHomePage> {
                                 ),
                               ),
                               IconButton(
-                                icon: const Icon(Icons.camera_alt, color: Colors.white),
+                                icon: const Icon(
+                                  Icons.camera_alt,
+                                  color: Colors.white,
+                                ),
                                 onPressed: chooseImageAndSend,
                               ),
                             ],
@@ -234,29 +268,53 @@ class _MainHomePageState extends State<MainHomePage> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const QuestionsPage()),
+                            MaterialPageRoute(
+                              builder: (_) => const QuestionsPage(),
+                            ),
                           );
                         },
                       ),
                       IconButton(
-                        icon: const Icon(Icons.favorite_border, color: Colors.white),
+                        icon: const Icon(
+                          Icons.favorite_border,
+                          color: Colors.white,
+                        ),
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => const FavoritesPage()));
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const FavoritesPage(),
+                            ),
+                          );
                         },
                       ),
                       IconButton(
-                        icon: const Icon(Icons.shopping_cart, color: Colors.white),
-                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CartPage())),
+                        icon: const Icon(
+                          Icons.shopping_cart,
+                          color: Colors.white,
+                        ),
+                        onPressed:
+                            () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const CartPage(),
+                              ),
+                            ),
                       ),
                       IconButton(
                         icon: const Icon(Icons.person, color: Colors.white),
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => const EditProfilePage()));
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const EditProfilePage(),
+                            ),
+                          );
                         },
                       ),
                     ],
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -273,18 +331,26 @@ class _MainHomePageState extends State<MainHomePage> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(30),
+                topRight: Radius.circular(30),
+              ),
             ),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  for (var cat in ['All Stores', 'Succulents', 'Outdoor Shops', 'Indoor Shops'])
+                  for (var cat in [
+                    'All Stores',
+                    'Succulents',
+                    'Outdoor Shops',
+                    'Indoor Shops',
+                  ])
                     CategoryButton(
                       title: cat,
                       isSelected: selectedCategory == cat,
                       onTap: () => setState(() => selectedCategory = cat),
-                    )
+                    ),
                 ],
               ),
             ),
@@ -308,7 +374,8 @@ class _MainHomePageState extends State<MainHomePage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => StoreDetailPage(storeName: store['name']),
+                          builder:
+                              (_) => StoreDetailPage(storeName: store['name']),
                         ),
                       );
                     },
@@ -316,12 +383,16 @@ class _MainHomePageState extends State<MainHomePage> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
-                        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 6)],
+                        boxShadow: const [
+                          BoxShadow(color: Colors.black12, blurRadius: 6),
+                        ],
                       ),
                       child: Column(
                         children: [
                           ClipRRect(
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(16),
+                            ),
                             child: Image.asset(
                               store['image'],
                               height: 120,
@@ -330,8 +401,20 @@ class _MainHomePageState extends State<MainHomePage> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Text(store['name'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                          Text(store['description'], style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                          Text(
+                            store['name'],
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          Text(
+                            store['description'],
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -351,7 +434,12 @@ class CategoryButton extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
 
-  const CategoryButton({super.key, required this.title, required this.isSelected, required this.onTap});
+  const CategoryButton({
+    super.key,
+    required this.title,
+    required this.isSelected,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -60,11 +60,23 @@ const userOrShopOwner = (req, res, next) => {
   }
 };
 
+/**
+ * Middleware: Admin OR ShopOwner only
+ */
+const adminOrShopOwner = (req, res, next) => {
+  if (req.user && (req.user.role === 'admin' || req.user.role === 'shopowner')) {
+    next();
+  } else {
+    res.status(403).json({ message: 'Only Admin or ShopOwner allowed' });
+  }
+};
+
 
 module.exports = {
   isAuthenticated,
   adminOnly,
   shopOwnerOnly,
   userOnly,
-  userOrShopOwner
+  userOrShopOwner,
+  adminOrShopOwner
 };

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'admin_dashboard.dart';
 
 class ViewOrdersPage extends StatefulWidget {
   const ViewOrdersPage({super.key});
@@ -56,7 +55,9 @@ class _ViewOrdersPageState extends State<ViewOrdersPage> {
         orders[index]['status'] = 'Shipped';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Order ${orders[index]['orderId']} marked as Shipped.'),
+            content: Text(
+              'Order ${orders[index]['orderId']} marked as Shipped.',
+            ),
             backgroundColor: Colors.green,
           ),
         );
@@ -64,7 +65,9 @@ class _ViewOrdersPageState extends State<ViewOrdersPage> {
         orders[index]['status'] = 'Pending';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Order ${orders[index]['orderId']} marked as Pending.'),
+            content: Text(
+              'Order ${orders[index]['orderId']} marked as Pending.',
+            ),
             backgroundColor: Colors.orange,
           ),
         );
@@ -101,11 +104,17 @@ class _ViewOrdersPageState extends State<ViewOrdersPage> {
   // تصفية الطلبات بناء على البحث والحالة
   List<Map<String, dynamic>> get _filteredOrders {
     return orders.where((order) {
-      final matchesStatus = _filterStatus == 'All' || order['status'] == _filterStatus;
-      final matchesSearch = _searchQuery.isEmpty ||
+      final matchesStatus =
+          _filterStatus == 'All' || order['status'] == _filterStatus;
+      final matchesSearch =
+          _searchQuery.isEmpty ||
           order['orderId'].toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          order['customerName'].toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          order['productName'].toLowerCase().contains(_searchQuery.toLowerCase());
+          order['customerName'].toLowerCase().contains(
+            _searchQuery.toLowerCase(),
+          ) ||
+          order['productName'].toLowerCase().contains(
+            _searchQuery.toLowerCase(),
+          );
       return matchesStatus && matchesSearch;
     }).toList();
   }
@@ -114,29 +123,30 @@ class _ViewOrdersPageState extends State<ViewOrdersPage> {
   void _showOrderDetails(Map<String, dynamic> order) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: Text('Order Details (${order['orderId']})'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Customer: ${order['customerName']}'),
-            Text('Product: ${order['productName']}'),
-            Text('Quantity: ${order['quantity']}'),
-            Text('Price: \$${order['price'].toStringAsFixed(2)}'),
-            Text('Status: ${order['status']}'),
-            Text('Date: ${order['date']}'),
-            Text('Address: ${order['address']}'),
-            Text('Phone: ${order['phone']}'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            child: const Text('Close'),
-            onPressed: () => Navigator.pop(context),
-          )
-        ],
-      ),
+      builder:
+          (_) => AlertDialog(
+            title: Text('Order Details (${order['orderId']})'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Customer: ${order['customerName']}'),
+                Text('Product: ${order['productName']}'),
+                Text('Quantity: ${order['quantity']}'),
+                Text('Price: \$${order['price'].toStringAsFixed(2)}'),
+                Text('Status: ${order['status']}'),
+                Text('Date: ${order['date']}'),
+                Text('Address: ${order['address']}'),
+                Text('Phone: ${order['phone']}'),
+              ],
+            ),
+            actions: [
+              TextButton(
+                child: const Text('Close'),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
     );
   }
 
@@ -149,11 +159,11 @@ class _ViewOrdersPageState extends State<ViewOrdersPage> {
         title: const Text('View Orders'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
-           onPressed: () {
-          //   Navigator.pushReplacement(
-          //     context,
-          //     MaterialPageRoute(builder: (_) => const AdminDashboard()),
-          //   );
+          onPressed: () {
+            //   Navigator.pushReplacement(
+            //     context,
+            //     MaterialPageRoute(builder: (_) => const AdminDashboard()),
+            //   );
           },
         ),
       ),
@@ -183,149 +193,192 @@ class _ViewOrdersPageState extends State<ViewOrdersPage> {
             // فلترة الحالة
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: ['All', 'Pending', 'Shipped'].map((status) {
-                bool isSelected = _filterStatus == status;
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
-                  child: ChoiceChip(
-                    label: Text(status),
-                    selected: isSelected,
-                    selectedColor: const Color(0xFF8DBF67),
-                    backgroundColor: Colors.grey.shade300,
-                    labelStyle: TextStyle(
-                      color: isSelected ? Colors.white : Colors.black87,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    onSelected: (_) {
-                      setState(() {
-                        _filterStatus = status;
-                      });
-                    },
-                  ),
-                );
-              }).toList(),
+              children:
+                  ['All', 'Pending', 'Shipped'].map((status) {
+                    bool isSelected = _filterStatus == status;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      child: ChoiceChip(
+                        label: Text(status),
+                        selected: isSelected,
+                        selectedColor: const Color(0xFF8DBF67),
+                        backgroundColor: Colors.grey.shade300,
+                        labelStyle: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black87,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        onSelected: (_) {
+                          setState(() {
+                            _filterStatus = status;
+                          });
+                        },
+                      ),
+                    );
+                  }).toList(),
             ),
             const SizedBox(height: 15),
             // قائمة الطلبات
             Expanded(
-              child: _filteredOrders.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'No orders found.',
-                        style: TextStyle(fontSize: 18, color: Colors.grey),
-                      ),
-                    )
-                  : ListView.builder(
-                      itemCount: _filteredOrders.length,
-                      itemBuilder: (context, index) {
-                        final order = _filteredOrders[index];
-                        return Card(
-                          elevation: 5,
-                          margin: const EdgeInsets.symmetric(vertical: 10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.all(20),
-                            leading: CircleAvatar(
-                              backgroundColor: _getStatusColor(order['status']),
-                              child: Text(
-                                order['orderId'].substring(order['orderId'].length - 3),
-                                style: const TextStyle(
-                                    color: Colors.white, fontWeight: FontWeight.bold),
+              child:
+                  _filteredOrders.isEmpty
+                      ? const Center(
+                        child: Text(
+                          'No orders found.',
+                          style: TextStyle(fontSize: 18, color: Colors.grey),
+                        ),
+                      )
+                      : ListView.builder(
+                        itemCount: _filteredOrders.length,
+                        itemBuilder: (context, index) {
+                          final order = _filteredOrders[index];
+                          return Card(
+                            elevation: 5,
+                            margin: const EdgeInsets.symmetric(vertical: 10),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.all(20),
+                              leading: CircleAvatar(
+                                backgroundColor: _getStatusColor(
+                                  order['status'],
+                                ),
+                                child: Text(
+                                  order['orderId'].substring(
+                                    order['orderId'].length - 3,
+                                  ),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
-                            ),
-                            title: Text(
-                              '${order['productName']} x${order['quantity']}',
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 18),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Customer: ${order['customerName']}'),
-                                Text('Total Price: \$${order['price'].toStringAsFixed(2)}'),
-                                const SizedBox(height: 5),
-                                Row(
-                                  children: [
-                                    const Text(
-                                      'Status: ',
-                                      style: TextStyle(fontWeight: FontWeight.bold),
-                                    ),
-                                    Text(
-                                      order['status'],
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: _getStatusColor(order['status']),
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              ],
-                            ),
-                            trailing: SizedBox(
-                              width: 120,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
+                              title: Text(
+                                '${order['productName']} x${order['quantity']}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // زر عرض التفاصيل
-                                  IconButton(
-                                    tooltip: 'View Details',
-                                    icon: const Icon(Icons.info, color: Colors.blue),
-                                    onPressed: () => _showOrderDetails(order),
+                                  Text('Customer: ${order['customerName']}'),
+                                  Text(
+                                    'Total Price: \$${order['price'].toStringAsFixed(2)}',
                                   ),
-                                  // زر تغيير الحالة
-                                  ElevatedButton(
-                                    onPressed: () => _toggleOrderStatus(orders.indexOf(order)),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          order['status'] == 'Pending' ? Colors.green : Colors.orange,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      order['status'] == 'Pending'
-                                          ? 'Mark Shipped'
-                                          : 'Mark Pending',
-                                      style: const TextStyle(fontSize: 12),
-                                    ),
-                                  ),
-                                  // زر حذف الطلب
-                                  IconButton(
-                                    tooltip: 'Delete Order',
-                                    icon: const Icon(Icons.delete, color: Colors.red),
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (_) => AlertDialog(
-                                          title: const Text('Confirm Deletion'),
-                                          content: Text(
-                                              'Are you sure you want to delete order ${order['orderId']}?'),
-                                          actions: [
-                                            TextButton(
-                                              child: const Text('Cancel'),
-                                              onPressed: () => Navigator.pop(context),
-                                            ),
-                                            TextButton(
-                                              child: const Text('Delete', style: TextStyle(color: Colors.red)),
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                                _deleteOrder(orders.indexOf(order));
-                                              },
-                                            ),
-                                          ],
+                                  const SizedBox(height: 5),
+                                  Row(
+                                    children: [
+                                      const Text(
+                                        'Status: ',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
                                         ),
-                                      );
-                                    },
+                                      ),
+                                      Text(
+                                        order['status'],
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: _getStatusColor(
+                                            order['status'],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
+                              trailing: SizedBox(
+                                width: 120,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // زر عرض التفاصيل
+                                    IconButton(
+                                      tooltip: 'View Details',
+                                      icon: const Icon(
+                                        Icons.info,
+                                        color: Colors.blue,
+                                      ),
+                                      onPressed: () => _showOrderDetails(order),
+                                    ),
+                                    // زر تغيير الحالة
+                                    ElevatedButton(
+                                      onPressed:
+                                          () => _toggleOrderStatus(
+                                            orders.indexOf(order),
+                                          ),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            order['status'] == 'Pending'
+                                                ? Colors.green
+                                                : Colors.orange,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        order['status'] == 'Pending'
+                                            ? 'Mark Shipped'
+                                            : 'Mark Pending',
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                    ),
+                                    // زر حذف الطلب
+                                    IconButton(
+                                      tooltip: 'Delete Order',
+                                      icon: const Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                      ),
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder:
+                                              (_) => AlertDialog(
+                                                title: const Text(
+                                                  'Confirm Deletion',
+                                                ),
+                                                content: Text(
+                                                  'Are you sure you want to delete order ${order['orderId']}?',
+                                                ),
+                                                actions: [
+                                                  TextButton(
+                                                    child: const Text('Cancel'),
+                                                    onPressed:
+                                                        () => Navigator.pop(
+                                                          context,
+                                                        ),
+                                                  ),
+                                                  TextButton(
+                                                    child: const Text(
+                                                      'Delete',
+                                                      style: TextStyle(
+                                                        color: Colors.red,
+                                                      ),
+                                                    ),
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                      _deleteOrder(
+                                                        orders.indexOf(order),
+                                                      );
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
+                          );
+                        },
+                      ),
             ),
           ],
         ),

@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const { Schema, Types } = mongoose;
 
 const shopSchema = new Schema({
-  ownerId: { type: Types.ObjectId, ref: 'User' }, // 🔥 صححناها: بدلاً من String → ObjectId
+  ownerId: { type: Types.ObjectId, ref: 'User' },
   name: String,
   address: String,
   phone: String,
@@ -10,4 +10,5 @@ const shopSchema = new Schema({
   specialties: [String]
 });
 
-module.exports = mongoose.model('Shop', shopSchema);
+// ✅ الحل: استخدم existing model إذا موجود
+module.exports = mongoose.models.Shop || mongoose.model('Shop', shopSchema);

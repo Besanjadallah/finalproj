@@ -19,7 +19,9 @@ const {
   updateUser,
   deleteUser,
   updateUserProfile,
-  getNormalUsers 
+  getNormalUsers,
+  deleteShopOwner,
+  updateShopOwner
 } = require('../controllers/userController');
 
 // ✅ Register new user
@@ -43,11 +45,19 @@ router.post('/create-shopowner', isAuthenticated, adminOnly, createShopOwner);
 // router.patch('/:id/make-admin', isAuthenticated, isAdmin, makeAdmin);
 // ✅ route جديد لعرض users
 
+
+// 🔥 حذف ShopOwner فقط
+router.delete('/shopowners/:id', isAuthenticated, adminOnly, deleteShopOwner);
+
+// 🔥 تعديل ShopOwner فقط
+router.put('/shopowners/:id', isAuthenticated, adminOnly, updateShopOwner);
+
 // ✅ Admin-only routes to manage users
-router.get('/users', isAuthenticated, adminOnly, getAllUsers);
-router.get('/users/shopowners', isAuthenticated, adminOnly, getShopOwners);
-router.get('/users/:id', isAuthenticated, adminOnly, getUserById);
-router.put('/users/:id', isAuthenticated, adminOnly, updateUser);
-router.get('/users/normal', isAuthenticated, adminOnly, getNormalUsers);
+// ✅ Admin-only routes to manage users
 router.get('/normal', isAuthenticated, adminOnly, getNormalUsers);
+router.get('/', isAuthenticated, adminOnly, getAllUsers);
+router.get('/shopowners', isAuthenticated, adminOnly, getShopOwners);
+router.get('/:id', isAuthenticated, adminOnly, getUserById);
+router.put('/:id', isAuthenticated, adminOnly, updateUser);
+router.delete('/:id', isAuthenticated, adminOnly, deleteUser);
 module.exports = router;
