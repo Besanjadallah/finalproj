@@ -4,10 +4,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 //import 'profile_page.dart';
 import 'edit_profile_page.dart';
 import 'main_home_page.dart';
+
 const String apiBaseUrl = 'http://192.168.1.18:8080'; // Use your backend IP and port
 
 class SignupPage extends StatefulWidget {
-  const SignupPage({Key? key}) : super(key: key);
+  const SignupPage({super.key});
 
   @override
   _SignupPageState createState() => _SignupPageState();
@@ -28,17 +29,16 @@ class _SignupPageState extends State<SignupPage> {
         passwordController.text.isEmpty) {
       showDialog(
         context: context,
-        builder:
-            (_) => AlertDialog(
-              title: const Text("Missing Info"),
-              content: const Text("Please fill in all fields."),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text("OK"),
-                ),
-              ],
+        builder: (_) => AlertDialog(
+          title: const Text("Missing Info"),
+          content: const Text("Please fill in all fields."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("OK"),
             ),
+          ],
+        ),
       );
       return;
     }
@@ -46,7 +46,7 @@ class _SignupPageState extends State<SignupPage> {
     try {
       final dio = Dio();
       final response = await dio.post(
-  '$apiBaseUrl/api/users/register',
+        '$apiBaseUrl/api/users/register',
         options: Options(headers: {'Content-Type': 'application/json'}),
         data: {
           'name': fullNameController.text,
@@ -68,27 +68,24 @@ class _SignupPageState extends State<SignupPage> {
         if (!mounted) return;
         showDialog(
           context: context,
-          builder:
-              (_) => AlertDialog(
-                title: const Text("Registration Successful"),
-                content: const Text(
-                  "Your account has been created successfully!",
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const MainHomePage(),
-                        ),
-                      );
-                    },
-                    child: const Text("OK"),
-                  ),
-                ],
+          builder: (_) => AlertDialog(
+            title: const Text("Registration Successful"),
+            content: const Text(
+              "Your account has been created successfully!",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const MainHomePage()),
+                  );
+                },
+                child: const Text("OK"),
               ),
+            ],
+          ),
         );
       } else {
         showErrorDialog(resData['message'] ?? 'Something went wrong');
@@ -101,17 +98,16 @@ class _SignupPageState extends State<SignupPage> {
   void showErrorDialog(String message) {
     showDialog(
       context: context,
-      builder:
-          (_) => AlertDialog(
-            title: const Text("Error"),
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("OK"),
-              ),
-            ],
+      builder: (_) => AlertDialog(
+        title: const Text("Error"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("OK"),
           ),
+        ],
+      ),
     );
   }
 
@@ -161,45 +157,14 @@ class _SignupPageState extends State<SignupPage> {
             ),
             const SizedBox(height: 25),
 
-            // Full Name
-            customField(
-              controller: fullNameController,
-              hint: 'Full Name',
-              icon: Icons.person,
-            ),
-
-            // Email
-            customField(
-              controller: emailController,
-              hint: 'Email',
-              icon: Icons.email,
-            ),
-
-            // Phone
-            customField(
-              controller: phoneController,
-              hint: 'Phone Number',
-              icon: Icons.phone,
-            ),
-
-            // Address
-            customField(
-              controller: addressController,
-              hint: 'Address',
-              icon: Icons.location_on,
-            ),
-
-            // Password
-            customField(
-              controller: passwordController,
-              hint: 'Password',
-              icon: Icons.lock,
-              isPassword: true,
-            ),
+            customField(controller: fullNameController, hint: 'Full Name', icon: Icons.person),
+            customField(controller: emailController, hint: 'Email', icon: Icons.email),
+            customField(controller: phoneController, hint: 'Phone Number', icon: Icons.phone),
+            customField(controller: addressController, hint: 'Address', icon: Icons.location_on),
+            customField(controller: passwordController, hint: 'Password', icon: Icons.lock, isPassword: true),
 
             const SizedBox(height: 30),
 
-            // زر التسجيل
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: SizedBox(

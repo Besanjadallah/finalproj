@@ -1,13 +1,12 @@
 const express = require('express');
 const router = express.Router();
-
 const {
   isAuthenticated,
   adminOnly
-} = require('../middlewares/authMiddleware');
+} = require('../middleware/authMiddleware'); // ✅ ملاحظة: middleware وليس middlewares
 
-// ✅ استيراد ميدلوير رفع الصور الموحد
-const upload = require('../middlewares/upload');
+// ✅ استيراد ميدلوير رفع الصور
+const upload = require('../middleware/upload');
 
 const {
   register,
@@ -21,30 +20,36 @@ const {
   deleteUser,
   getNormalUsers,
   updateUserProfile,
-  changePassword
+  changePassword,
+  deleteShopOwner,
+  updateShopOwner
 } = require('../controllers/userController');
 
 // 🔐 Auth routes
 router.post('/register', register);
 router.post('/login', login);
 
-// 👤 Profile route (عرض فقط)
+// 👤 Profile routes
 router.get('/profile', isAuthenticated, (req, res) => {
   res.json({ message: "Profile accessed successfully", user: req.user });
 });
-
-// ✏️ تعديل الملف الشخصي (بصورة أو بدون)
 router.put('/update-profile', isAuthenticated, upload.single('profileImage'), updateUserProfile);
 router.put('/change-password', isAuthenticated, changePassword);
 
-// 🛠 Admin-only routes
+// 🛠 Admin-only user management
 router.post('/create-shopowner', isAuthenticated, adminOnly, createShopOwner);
 router.patch('/users/:id/make-admin', isAuthenticated, adminOnly, makeAdmin);
+
+// ✅ إدارة المستخدمين
 router.get('/users', isAuthenticated, adminOnly, getAllUsers);
 router.get('/users/normal', isAuthenticated, adminOnly, getNormalUsers);
 router.get('/users/shopowners', isAuthenticated, adminOnly, getShopOwners);
 router.get('/users/:id', isAuthenticated, adminOnly, getUserById);
 router.put('/users/:id', isAuthenticated, adminOnly, updateUser);
 router.delete('/users/:id', isAuthenticated, adminOnly, deleteUser);
+
+// ✅ إدارة خاصة لـ ShopOwners
+router.delete('/shopowners/:id', isAuthenticated, adminOnly, deleteShopOwner);
+router.put('/shopowners/:id', isAuthenticated, adminOnly, updateShopOwner);
 
 module.exports = router;

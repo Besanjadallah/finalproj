@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 
-import 'login_page.dart';
 import 'signup_page.dart';
 //import 'profile_page.dart';
 import 'welcome_page.dart';
-import 'admin_dashboard.dart';
 import 'stores_page.dart';
 import 'cart_page.dart';
 
@@ -24,25 +22,26 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => CartProvider()),
-        ChangeNotifierProvider(create: (_) => FavoriteProvider()), // ✅ إضافة Provider المفضلة
+        ChangeNotifierProvider(
+          create: (_) => FavoriteProvider(),
+        ), // ✅ إضافة Provider المفضلة
       ],
       
       child: PlantsiApp(
-        initialRoute: token != null
-            ? (role == 'admin' ? '/admin' : '/profile')
-            : '/welcome',
+        initialRoute:
+            token != null
+                ? (role == 'admin' ? '/admin' : '/profile')
+                : '/welcome',
       ),
     ),
   );
 }
+
 //
 class PlantsiApp extends StatelessWidget {
   final String initialRoute;
 
-  const PlantsiApp({
-    super.key,
-    required this.initialRoute,
-  });
+  const PlantsiApp({super.key, required this.initialRoute});
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +52,7 @@ class PlantsiApp extends StatelessWidget {
       routes: {
         '/stores': (context) => StoresPage(),
         '/welcome': (context) => const WelcomePage(),
-      //  '/login': (context) => const LoginPage(),
+        //  '/login': (context) => const LoginPage(),
         '/signup': (context) => const SignupPage(),
         //'/profile': (context) => const ProfilePage(),
         '/admin': (context) => const AdminDashboard(),
@@ -62,10 +61,7 @@ class PlantsiApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
         scaffoldBackgroundColor: const Color(0xFFF5F5F5),
-        appBarTheme: const AppBarTheme(
-          elevation: 0,
-          centerTitle: true,
-        ),
+        appBarTheme: const AppBarTheme(elevation: 0, centerTitle: true),
       ),
     );
   }

@@ -19,8 +19,7 @@ console.log('🧩 جميع الراوترات تم تحميلها');
 app.use(express.json());
 app.use(cors());
 app.use('/uploads', express.static('uploads'));
-app.use('/api/plant', plantAnalysisRoutes);
-
+app.use('/api/plant', plantAnalysisRoutes);  // ✅ تحليلات النباتات (Plant Analysis)
 
 /* ──────────── فحص متغيرات البيئة ──────────── */
 console.log('🛠️ Checking environment variables:');
@@ -36,7 +35,7 @@ console.log('PORT:', process.env.PORT || 'default 8080');
 app.use('/api/users', userRoutes);          // تسجيل الدخول والتسجيل
 app.use('/api/shops', shopRoutes);          // راوتر المحلات
 app.use('/api/plants', plantRoutes);        // راوتر النباتات
-app.use('/api/orders', orderRoutes);        // ✅ راوتر الطلبات (جديد)
+app.use('/api/orders', orderRoutes);        // ✅ راوتر الطلبات
 app.use('/api/favorites', favoriteRoutes);  // راوتر المفضلة
 
 /* ──────────── مسار اختبار ──────────── */

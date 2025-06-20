@@ -1,4 +1,4 @@
-// ✅ main_home.dart (بعد استبدال زر "الأسئلة" بزر تحليل النبتة)
+// ✅ main_home_page.dart (بعد تنظيف التعارضات)
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
@@ -6,13 +6,13 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:typed_data';
 import 'dart:io' show File;
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'edit_profile_page.dart';
 import 'view_orders_page.dart';
-import 'profile_page.dart';
 import 'favorites_page.dart';
 import 'cart_page.dart';
 import 'store_detail_page.dart';
 import 'plant_chat_page.dart';
-
 
 class MainHomePage extends StatefulWidget {
   const MainHomePage({super.key});
@@ -116,14 +116,20 @@ class _MainHomePageState extends State<MainHomePage> {
   }
 
   Future<void> _uploadMobileImage(File imageFile) async {
-    var request = http.MultipartRequest('POST', Uri.parse('http://10.0.2.2:8080/api/plant/analyze-plant'));
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('http://10.0.2.2:8080/scan'),
+    );
     request.files.add(await http.MultipartFile.fromPath('image', imageFile.path));
     var response = await request.send();
     _handleResponse(response);
   }
 
   Future<void> _uploadWebImage(Uint8List bytes) async {
-    var request = http.MultipartRequest('POST', Uri.parse('http://localhost:8080/api/plant/analyze-plant'));
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('http://localhost:8080/scan'),
+    );
     request.files.add(http.MultipartFile.fromBytes('image', bytes, filename: 'web_img.jpg'));
     var response = await request.send();
     _handleResponse(response);
@@ -135,9 +141,11 @@ class _MainHomePageState extends State<MainHomePage> {
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          title: const Text("🔬 تحليل النبتة"),
+          title: const Text("🧪 تحليل النبتة"),
           content: Text(res),
-          actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text("OK"))],
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text("OK"))
+          ],
         ),
       );
     } else {
@@ -170,7 +178,10 @@ class _MainHomePageState extends State<MainHomePage> {
             child: Column(
               children: [
                 const SizedBox(height: 8),
-                const Text("🌿 Plant Shops", style: TextStyle(fontSize: 22, color: Colors.white, fontWeight: FontWeight.bold)),
+                const Text(
+                  "🌿 Plant Shops",
+                  style: TextStyle(fontSize: 22, color: Colors.white, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 10),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -180,10 +191,7 @@ class _MainHomePageState extends State<MainHomePage> {
                         icon: const Icon(Icons.receipt_long),
                         tooltip: 'My Orders',
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const ViewOrdersPage()),
-                          );
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const ViewOrdersPage()));
                         },
                       ),
                       const SizedBox(width: 6),
@@ -224,16 +232,12 @@ class _MainHomePageState extends State<MainHomePage> {
                         ),
                       ),
                       IconButton(
-                            icon: const Icon(Icons.science, color: Colors.white),
-                            tooltip: "Plant analysis",
-                            onPressed: () {
-                            Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const PlantChatPage()),
-                        );
-                       },
-                       ),
-
+                        icon: const Icon(Icons.science, color: Colors.white),
+                        tooltip: "Plant analysis",
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const PlantChatPage()));
+                        },
+                      ),
                       IconButton(
                         icon: const Icon(Icons.favorite_border, color: Colors.white),
                         onPressed: () {
@@ -242,17 +246,19 @@ class _MainHomePageState extends State<MainHomePage> {
                       ),
                       IconButton(
                         icon: const Icon(Icons.shopping_cart, color: Colors.white),
-                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CartPage())),
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const CartPage()));
+                        },
                       ),
                       IconButton(
                         icon: const Icon(Icons.person, color: Colors.white),
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfilePage()));
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const EditProfilePage()));
                         },
                       ),
                     ],
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -269,7 +275,10 @@ class _MainHomePageState extends State<MainHomePage> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(30),
+                topRight: Radius.circular(30),
+              ),
             ),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -280,7 +289,7 @@ class _MainHomePageState extends State<MainHomePage> {
                       title: cat,
                       isSelected: selectedCategory == cat,
                       onTap: () => setState(() => selectedCategory = cat),
-                    )
+                    ),
                 ],
               ),
             ),
@@ -303,9 +312,7 @@ class _MainHomePageState extends State<MainHomePage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (_) => StoreDetailPage(storeName: store['name']),
-                        ),
+                        MaterialPageRoute(builder: (_) => StoreDetailPage(storeName: store['name'])),
                       );
                     },
                     child: Container(
@@ -326,8 +333,14 @@ class _MainHomePageState extends State<MainHomePage> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Text(store['name'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                          Text(store['description'], style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                          Text(
+                            store['name'],
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          Text(
+                            store['description'],
+                            style: const TextStyle(color: Colors.grey, fontSize: 12),
+                          ),
                         ],
                       ),
                     ),
@@ -347,7 +360,12 @@ class CategoryButton extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
 
-  const CategoryButton({super.key, required this.title, required this.isSelected, required this.onTap});
+  const CategoryButton({
+    super.key,
+    required this.title,
+    required this.isSelected,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {

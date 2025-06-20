@@ -7,6 +7,7 @@ import 'signup_page.dart';
 import 'admin_dashboard.dart';
 import 'package:flutter/foundation.dart';
 import 'main_home_page.dart';
+import 'owner.dart'; // تأكدي من أن ShopOwnerDashboard موجودة في هذا الملف
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -62,9 +63,10 @@ class _LoginPageState extends State<LoginPage> {
         await prefs.setString('role', data['user']['role']);
         await prefs.setString('name', data['user']['name']);
         await prefs.setString('email', data['user']['email']);
-        await prefs.setString('userId', data['user']['id']); // 🟢 خزني userId الحقيقي
-        
-
+        await prefs.setString('userId', data['user']['id']);
+        if (data['user']['role'] == 'shopowner') {
+          await prefs.setString('shopId', data['user']['shopId'] ?? '');
+        }
 
         if (!mounted) return;
 
@@ -72,6 +74,11 @@ class _LoginPageState extends State<LoginPage> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => const AdminDashboard()),
+          );
+        } else if (data['user']['role'] == 'shopowner') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const ShopOwnerDashboard()),
           );
         } else {
           Navigator.pushReplacement(
