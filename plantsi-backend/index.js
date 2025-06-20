@@ -4,16 +4,22 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
-// استيراد الراوتات
+const app = express();
+
+// ✅ تسجيل الراوترات
 const userRoutes = require('./routes/userRoutes');
 const shopRoutes = require('./routes/shopRoutes');
 const plantRoutes = require('./routes/plantRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const favoriteRoutes = require('./routes/favoriteRoutes');
+const plantAnalysisRoutes = require('./routes/plantAnalysisRoutes');
 
-const app = express();
+console.log('🧩 جميع الراوترات تم تحميلها');
+
 app.use(express.json());
 app.use(cors());
 app.use('/uploads', express.static('uploads'));
+app.use('/api/plant', plantAnalysisRoutes);  // ✅ تحليلات النباتات (Plant Analysis)
 
 /* ──────────── فحص متغيرات البيئة ──────────── */
 console.log('🛠️ Checking environment variables:');
@@ -26,10 +32,11 @@ if (!process.env.MONGO_URI) {
 console.log('PORT:', process.env.PORT || 'default 8080');
 
 /* ──────────── ربط الراوتات ──────────── */
-app.use('/api/users', userRoutes);                // تسجيل الدخول والتسجيل
-app.use('/api/shops', shopRoutes);                // راوتر المحل
-app.use('/api/plants', plantRoutes);              // راوتر النباتات
-app.use('/api/orders', orderRoutes);              // راوتر الطلبات
+app.use('/api/users', userRoutes);          // تسجيل الدخول والتسجيل
+app.use('/api/shops', shopRoutes);          // راوتر المحلات
+app.use('/api/plants', plantRoutes);        // راوتر النباتات
+app.use('/api/orders', orderRoutes);        // ✅ راوتر الطلبات
+app.use('/api/favorites', favoriteRoutes);  // راوتر المفضلة
 
 /* ──────────── مسار اختبار ──────────── */
 app.get('/', (req, res) => {

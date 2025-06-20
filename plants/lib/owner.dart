@@ -61,20 +61,20 @@ class _ShopOwnerDashboardState extends State<ShopOwnerDashboard> {
 
       if (response.statusCode == 200) {
         setState(() => plants.removeWhere((p) => p['_id'] == plantId));
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('✅ Plant deleted')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('✅ Plant deleted')),
+        );
       } else {
-        print('❌ Delete failed: ${response.statusCode}');
+        print('❌ Delete failed: \${response.statusCode}');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('❌ Failed to delete plant')),
         );
       }
     } catch (e) {
       print('❌ Error deleting plant: $e');
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('❌ Error deleting plant')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('❌ Error deleting plant')),
+      );
     }
   }
 
@@ -90,17 +90,20 @@ class _ShopOwnerDashboardState extends State<ShopOwnerDashboard> {
 
       if (response.statusCode == 200) {
         setState(() => orders.removeWhere((o) => o['_id'] == orderId));
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('✅ Order deleted')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('✅ Order deleted')),
+        );
       } else {
-        print('❌ Failed to delete order: ${response.statusCode}');
+        print('❌ Failed to delete order: \${response.statusCode}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('❌ Failed to delete order')),
+        );
       }
     } catch (e) {
       print('❌ Error deleting order: $e');
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('❌ Error deleting order')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('❌ Error deleting order')),
+      );
     }
   }
 
@@ -122,7 +125,7 @@ class _ShopOwnerDashboardState extends State<ShopOwnerDashboard> {
                 MaterialPageRoute(builder: (_) => const AddPlantPage()),
               );
               if (result == true) {
-                _fetchData(); // ✅ تحديث الصفحة الرئيسية بعد الإضافة
+                _fetchData();
               }
             },
           ),
@@ -187,7 +190,7 @@ class _ShopOwnerDashboardState extends State<ShopOwnerDashboard> {
         color: isLow ? Colors.red[50] : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3)),
+          const BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3)),
         ],
       ),
       padding: const EdgeInsets.all(12),
@@ -196,12 +199,11 @@ class _ShopOwnerDashboardState extends State<ShopOwnerDashboard> {
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Image.network(
-              '$apiBaseUrl${plant['imageUrl'] ?? ''}',
+              '$apiBaseUrl\${plant['imageUrl'] ?? ''}',
               width: 60,
               height: 60,
               fit: BoxFit.cover,
-              errorBuilder:
-                  (_, __, ___) => const Icon(Icons.image_not_supported),
+              errorBuilder: (_, __, ___) => const Icon(Icons.image_not_supported),
             ),
           ),
           const SizedBox(width: 12),
@@ -217,13 +219,13 @@ class _ShopOwnerDashboardState extends State<ShopOwnerDashboard> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text("Price: \$${plant['price']}"),
+                Text("Price: \$\${plant['price']}"),
                 Text(
-                  "Qty: ${plant['quantity']}",
+                  "Qty: \${plant['quantity']}",
                   style: TextStyle(color: isLow ? Colors.red : Colors.black),
                 ),
-                Text("Quality: ${plant['quality']}"),
-                Text("Type: ${plant['type']}"),
+                Text("Quality: \${plant['quality']}"),
+                Text("Type: \${plant['type']}"),
               ],
             ),
           ),
@@ -239,7 +241,7 @@ class _ShopOwnerDashboardState extends State<ShopOwnerDashboard> {
                     ),
                   );
                   if (result == true) {
-                    _fetchData(); // ✅ تحديث بعد التعديل
+                    _fetchData();
                   }
                 },
               ),
@@ -265,7 +267,7 @@ class _ShopOwnerDashboardState extends State<ShopOwnerDashboard> {
           child: Icon(Icons.person, color: Colors.white),
         ),
         title: Text(order['user'] ?? 'Unknown User'),
-        subtitle: Text("Total: \$${order['totalPrice']}"),
+        subtitle: Text("Total: \$\${order['totalPrice']}"),
         trailing: IconButton(
           icon: const Icon(Icons.delete, color: Colors.red),
           onPressed: () => _deleteOrder(order['_id']),

@@ -1,8 +1,8 @@
 class CartItem {
-  final String id;
+  final String id;       
   final String name;
-  final double price;
-  final String image;
+  final double price; 
+   final String image;  
   int quantity;
 
   CartItem({
@@ -12,4 +12,11 @@ class CartItem {
     required this.image,
     this.quantity = 1,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'plantId': id,
+      'quantity': quantity,
+    };
+  }
 }

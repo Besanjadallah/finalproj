@@ -26,6 +26,7 @@ void main() async {
           create: (_) => FavoriteProvider(),
         ), // ✅ إضافة Provider المفضلة
       ],
+      
       child: PlantsiApp(
         initialRoute:
             token != null

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Shop = require('../models/shop');
 
-const { isAuthenticated, shopOwnerOnly, adminOnly } = require('../middleware/authMiddleware');
+const { isAuthenticated, shopOwnerOnly, adminOnly } = require('../middlewares/authMiddleware');
 
 // ✅ Add or Update shop info — shopowner only
 router.post('/add', isAuthenticated, shopOwnerOnly, async (req, res) => {

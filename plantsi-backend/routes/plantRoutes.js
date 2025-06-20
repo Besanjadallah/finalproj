@@ -5,7 +5,7 @@ const multer = require('multer');
 const Plant = require('../models/Plant');
 const { isAuthenticated, shopOwnerOnly } = require('../middleware/authMiddleware');
 
-// إعداد multer لتخزين الصور في مجلد uploads
+// ✅ إعداد multer لتخزين الصور في مجلد uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/'),
   filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
@@ -13,7 +13,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// ✅ Add plant with image
+// ✅ إضافة نبتة جديدة
 router.post(
   '/add',
   isAuthenticated,
@@ -43,7 +43,7 @@ router.post(
   }
 );
 
-// ✅ Update plant with optional image
+// ✅ تحديث نبتة
 router.put(
   '/:plantId',
   isAuthenticated,
@@ -68,6 +68,9 @@ router.put(
         updateData,
         { new: true }
       );
+
+      if (!plant) return res.status(404).json({ message: 'Plant not found' });
+
       res.json(plant);
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -75,17 +78,19 @@ router.put(
   }
 );
 
-// ✅ Delete plant
+// ✅ حذف نبتة
 router.delete('/:plantId', isAuthenticated, shopOwnerOnly, async (req, res) => {
   try {
-    await Plant.findByIdAndDelete(req.params.plantId);
-    res.json({ message: 'Plant deleted' });
+    const deleted = await Plant.findByIdAndDelete(req.params.plantId);
+    if (!deleted) return res.status(404).json({ message: 'Plant not found' });
+
+    res.json({ message: 'Plant deleted successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// ✅ Get all plants for a shop
+// ✅ عرض كل النباتات الخاصة بمحطة معيّنة
 router.get('/shop/:shopId', async (req, res) => {
   try {
     const plants = await Plant.find({ shopId: req.params.shopId });

@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-
-const { 
-  isAuthenticated, 
-  userOnly, 
+const {
+  isAuthenticated,
   adminOnly
-  // isAdmin 
-} = require('../middleware/authMiddleware');
+} = require('../middleware/authMiddleware'); // ✅ ملاحظة: middleware وليس middlewares
+
+// ✅ استيراد ميدلوير رفع الصور
+const upload = require('../middleware/upload');
 
 const {
   register,
@@ -18,46 +18,38 @@ const {
   getUserById,
   updateUser,
   deleteUser,
-  updateUserProfile,
   getNormalUsers,
+  updateUserProfile,
+  changePassword,
   deleteShopOwner,
   updateShopOwner
 } = require('../controllers/userController');
 
-// ✅ Register new user
+// 🔐 Auth routes
 router.post('/register', register);
-
-// ✅ Login user
 router.post('/login', login);
 
-// ✅ Get own profile (any role)
+// 👤 Profile routes
 router.get('/profile', isAuthenticated, (req, res) => {
   res.json({ message: "Profile accessed successfully", user: req.user });
 });
+router.put('/update-profile', isAuthenticated, upload.single('profileImage'), updateUserProfile);
+router.put('/change-password', isAuthenticated, changePassword);
 
-// ✅ Update own profile (any role)
-router.put('/update-profile', isAuthenticated, updateUserProfile);
-
-// ✅ Admin-only route to create shopowner
+// 🛠 Admin-only user management
 router.post('/create-shopowner', isAuthenticated, adminOnly, createShopOwner);
+router.patch('/users/:id/make-admin', isAuthenticated, adminOnly, makeAdmin);
 
-// ✅ Admin-only route to promote user to admin
-// router.patch('/:id/make-admin', isAuthenticated, isAdmin, makeAdmin);
-// ✅ route جديد لعرض users
+// ✅ إدارة المستخدمين
+router.get('/users', isAuthenticated, adminOnly, getAllUsers);
+router.get('/users/normal', isAuthenticated, adminOnly, getNormalUsers);
+router.get('/users/shopowners', isAuthenticated, adminOnly, getShopOwners);
+router.get('/users/:id', isAuthenticated, adminOnly, getUserById);
+router.put('/users/:id', isAuthenticated, adminOnly, updateUser);
+router.delete('/users/:id', isAuthenticated, adminOnly, deleteUser);
 
-
-// 🔥 حذف ShopOwner فقط
+// ✅ إدارة خاصة لـ ShopOwners
 router.delete('/shopowners/:id', isAuthenticated, adminOnly, deleteShopOwner);
-
-// 🔥 تعديل ShopOwner فقط
 router.put('/shopowners/:id', isAuthenticated, adminOnly, updateShopOwner);
 
-// ✅ Admin-only routes to manage users
-// ✅ Admin-only routes to manage users
-router.get('/normal', isAuthenticated, adminOnly, getNormalUsers);
-router.get('/', isAuthenticated, adminOnly, getAllUsers);
-router.get('/shopowners', isAuthenticated, adminOnly, getShopOwners);
-router.get('/:id', isAuthenticated, adminOnly, getUserById);
-router.put('/:id', isAuthenticated, adminOnly, updateUser);
-router.delete('/:id', isAuthenticated, adminOnly, deleteUser);
 module.exports = router;

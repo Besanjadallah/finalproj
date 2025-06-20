@@ -1,4 +1,4 @@
-// ✅ main_home.dart (بعد إضافة زر "أسئلة المجتمع" لفتح صفحة الأسئلة)
+// ✅ main_home_page.dart (بعد تنظيف التعارضات)
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
@@ -7,12 +7,12 @@ import 'dart:typed_data';
 import 'dart:io' show File;
 import 'package:shared_preferences/shared_preferences.dart';
 
-//import 'profile_page.dart';
 import 'edit_profile_page.dart';
+import 'view_orders_page.dart';
 import 'favorites_page.dart';
 import 'cart_page.dart';
 import 'store_detail_page.dart';
-import 'questions_page.dart'; // ✅ استيراد صفحة الأسئلة
+import 'plant_chat_page.dart';
 
 class MainHomePage extends StatefulWidget {
   const MainHomePage({super.key});
@@ -78,9 +78,7 @@ class _MainHomePageState extends State<MainHomePage> {
                 leading: const Icon(Icons.photo_library),
                 title: const Text('Pick from Gallery'),
                 onTap: () async {
-                  final pickedFile = await _picker.pickImage(
-                    source: ImageSource.gallery,
-                  );
+                  final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
                   Navigator.pop(context);
                   if (pickedFile != null) {
                     if (kIsWeb) {
@@ -97,9 +95,7 @@ class _MainHomePageState extends State<MainHomePage> {
                 leading: const Icon(Icons.camera_alt),
                 title: const Text('Take a Photo'),
                 onTap: () async {
-                  final pickedFile = await _picker.pickImage(
-                    source: ImageSource.camera,
-                  );
+                  final pickedFile = await _picker.pickImage(source: ImageSource.camera);
                   Navigator.pop(context);
                   if (pickedFile != null) {
                     if (kIsWeb) {
@@ -124,9 +120,7 @@ class _MainHomePageState extends State<MainHomePage> {
       'POST',
       Uri.parse('http://10.0.2.2:8080/scan'),
     );
-    request.files.add(
-      await http.MultipartFile.fromPath('image', imageFile.path),
-    );
+    request.files.add(await http.MultipartFile.fromPath('image', imageFile.path));
     var response = await request.send();
     _handleResponse(response);
   }
@@ -136,9 +130,7 @@ class _MainHomePageState extends State<MainHomePage> {
       'POST',
       Uri.parse('http://localhost:8080/scan'),
     );
-    request.files.add(
-      http.MultipartFile.fromBytes('image', bytes, filename: 'web_img.jpg'),
-    );
+    request.files.add(http.MultipartFile.fromBytes('image', bytes, filename: 'web_img.jpg'));
     var response = await request.send();
     _handleResponse(response);
   }
@@ -148,20 +140,16 @@ class _MainHomePageState extends State<MainHomePage> {
       final res = await response.stream.bytesToString();
       showDialog(
         context: context,
-        builder:
-            (_) => AlertDialog(
-              title: const Text("Matched Plant"),
-              content: Text(res),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text("OK"),
-                ),
-              ],
-            ),
+        builder: (_) => AlertDialog(
+          title: const Text("🧪 تحليل النبتة"),
+          content: Text(res),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text("OK"))
+          ],
+        ),
       );
     } else {
-      print("Upload failed");
+      print("❌ Upload failed");
     }
   }
 
@@ -173,11 +161,10 @@ class _MainHomePageState extends State<MainHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredStores =
-        stores.where((store) {
-          final name = store['name'].toString().toLowerCase();
-          return name.contains(searchQuery);
-        }).toList();
+    final filteredStores = stores.where((store) {
+      final name = store['name'].toString().toLowerCase();
+      return name.contains(searchQuery);
+    }).toList();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF0F8F4),
@@ -193,11 +180,7 @@ class _MainHomePageState extends State<MainHomePage> {
                 const SizedBox(height: 8),
                 const Text(
                   "🌿 Plant Shops",
-                  style: TextStyle(
-                    fontSize: 22,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 22, color: Colors.white, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
                 Padding(
@@ -205,21 +188,10 @@ class _MainHomePageState extends State<MainHomePage> {
                   child: Row(
                     children: [
                       IconButton(
-                        icon: const Icon(
-                          Icons.notifications_none,
-                          color: Colors.white,
-                        ),
+                        icon: const Icon(Icons.receipt_long),
+                        tooltip: 'My Orders',
                         onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder:
-                                (_) => const AlertDialog(
-                                  title: Text("Notifications"),
-                                  content: Text(
-                                    "You have new messages about your plants 🌿.",
-                                  ),
-                                ),
-                          );
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const ViewOrdersPage()));
                         },
                       ),
                       const SizedBox(width: 6),
@@ -252,10 +224,7 @@ class _MainHomePageState extends State<MainHomePage> {
                                 ),
                               ),
                               IconButton(
-                                icon: const Icon(
-                                  Icons.camera_alt,
-                                  color: Colors.white,
-                                ),
+                                icon: const Icon(Icons.camera_alt, color: Colors.white),
                                 onPressed: chooseImageAndSend,
                               ),
                             ],
@@ -263,53 +232,28 @@ class _MainHomePageState extends State<MainHomePage> {
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.forum, color: Colors.white),
-                        tooltip: "Community Q&A",
+                        icon: const Icon(Icons.science, color: Colors.white),
+                        tooltip: "Plant analysis",
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const QuestionsPage(),
-                            ),
-                          );
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const PlantChatPage()));
                         },
                       ),
                       IconButton(
-                        icon: const Icon(
-                          Icons.favorite_border,
-                          color: Colors.white,
-                        ),
+                        icon: const Icon(Icons.favorite_border, color: Colors.white),
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const FavoritesPage(),
-                            ),
-                          );
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const FavoritesPage()));
                         },
                       ),
                       IconButton(
-                        icon: const Icon(
-                          Icons.shopping_cart,
-                          color: Colors.white,
-                        ),
-                        onPressed:
-                            () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const CartPage(),
-                              ),
-                            ),
+                        icon: const Icon(Icons.shopping_cart, color: Colors.white),
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const CartPage()));
+                        },
                       ),
                       IconButton(
                         icon: const Icon(Icons.person, color: Colors.white),
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const EditProfilePage(),
-                            ),
-                          );
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const EditProfilePage()));
                         },
                       ),
                     ],
@@ -340,12 +284,7 @@ class _MainHomePageState extends State<MainHomePage> {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  for (var cat in [
-                    'All Stores',
-                    'Succulents',
-                    'Outdoor Shops',
-                    'Indoor Shops',
-                  ])
+                  for (var cat in ['All Stores', 'Succulents', 'Outdoor Shops', 'Indoor Shops'])
                     CategoryButton(
                       title: cat,
                       isSelected: selectedCategory == cat,
@@ -373,26 +312,19 @@ class _MainHomePageState extends State<MainHomePage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder:
-                              (_) => StoreDetailPage(storeName: store['name']),
-                        ),
+                        MaterialPageRoute(builder: (_) => StoreDetailPage(storeName: store['name'])),
                       );
                     },
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
-                        boxShadow: const [
-                          BoxShadow(color: Colors.black12, blurRadius: 6),
-                        ],
+                        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 6)],
                       ),
                       child: Column(
                         children: [
                           ClipRRect(
-                            borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(16),
-                            ),
+                            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                             child: Image.asset(
                               store['image'],
                               height: 120,
@@ -403,17 +335,11 @@ class _MainHomePageState extends State<MainHomePage> {
                           const SizedBox(height: 8),
                           Text(
                             store['name'],
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                           ),
                           Text(
                             store['description'],
-                            style: const TextStyle(
-                              color: Colors.grey,
-                              fontSize: 12,
-                            ),
+                            style: const TextStyle(color: Colors.grey, fontSize: 12),
                           ),
                         ],
                       ),

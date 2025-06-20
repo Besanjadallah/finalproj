@@ -1,357 +1,106 @@
-const User   = require('../models/User');
-const bcrypt = require('bcryptjs');
-const jwt    = require('jsonwebtoken');
-const Shop = require('../models/shop');
- 
-// تسجيل مستخدم جديد
-const register = async (req, res) => {
-  try {
-    const { name, email, phone, address, password } = req.body;
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-    // التحقق من وجود المستخدم بالبريد
+class ViewOrdersPage extends StatefulWidget {
+  const ViewOrdersPage({super.key});
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ error: 'Email already exists' });
-    }
+  @override
+  State<ViewOrdersPage> createState() => _ViewOrdersPageState();
+}
 
-    /* تشفير كلمة المرور */
-    const hashedPassword = await bcrypt.hash(password, 12);
+class _ViewOrdersPageState extends State<ViewOrdersPage> {
+  late Future<List<dynamic>> _ordersFuture;
 
+  @override
+  void initState() {
+    super.initState();
+    _ordersFuture = fetchOrders();
+  }
 
-    const user = new User({
-      name,
-      email,
-      phone,
-      address,
-      password: hashedPassword,
+  Future<List<dynamic>> fetchOrders() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final userId = prefs.getString('userId');
 
-      role: 'user'  // إجباري يكون user عند التسجيل
-
-    });
-    await user.save();
-
-
-    const token = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
+    final url = Uri.parse('http://192.168.1.18:8080/api/orders/$userId');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
     );
 
-
-    res.status(201).json({
-      message: "User registered successfully",
-
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-
-        phone: user.phone,
-        address: user.address,
-        role: user.role
-      }
-    });
-
-
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      print("❌ Failed to fetch orders: ${response.statusCode} | ${response.body}");
+      return [];
+    }
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('My Orders'),
+        backgroundColor: const Color(0xFF8DBF67),
+      ),
+      body: FutureBuilder<List<dynamic>>(
+        future: _ordersFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No orders found.'));
+          }
 
-};
+          final orders = snapshot.data!;
+          return ListView.builder(
+            itemCount: orders.length,
+            itemBuilder: (context, index) {
+              final order = orders[index];
+              final items = order['items'] as List;
+              final total = order['totalPrice'];
+              final date = order['date']?.substring(0, 10) ?? 'N/A';
 
-
-const login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ error: 'Invalid credentials' });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ error: 'Invalid credentials' });
-    }
-
-    const token = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                elevation: 4,
+                child: ListTile(
+                  title: Text("₪${total.toStringAsFixed(2)} | ${items.length} item(s)"),
+                  subtitle: Text("Date: $date"),
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: const Text("Order Details"),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: items.map<Widget>((item) {
+                            return Text(
+                                "- ${item['name']} x${item['quantity']} (₪${item['price']})");
+                          }).toList(),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text("Close"),
+                          )
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
-
-    // ⭐ استرجاع shopId إذا كان المستخدم من نوع shopowner
-    let shopId = null;
-    if (user.role === 'shopowner') {
-      const shop = await Shop.findOne({ ownerId: user._id });
-      if (shop) {
-        shopId = shop._id.toString();
-      }
-    }
-
-    return res.json({
-      message: 'Login successful',
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        address: user.address,
-        role: user.role,
-        shopId // ✅ مهم جداً: frontend رح يحتاجه
-      }
-    });
-
-  } catch (err) {
-    res.status(500).json({ error: err.message });
   }
-};
-
-// إنشاء Shop Owner
-const createShopOwner = async (req, res) => {
-  try {
-    const { name, email, phone, address, password } = req.body;
-
-    // التأكد إذا المستخدم موجود بالبريد
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ error: "Email already exists" });
-    }
-
-    // تشفير كلمة المرور
-    const hashedPassword = await bcrypt.hash(password, 12);
-
-    // إنشاء مستخدم برول shopowner
-    const shopOwner = new User({
-      name,
-      email,
-      phone,
-      address,
-      password: hashedPassword,
-      role: 'shopowner'
-    });
-
-    await shopOwner.save();
-
-    res.status(201).json({
-      message: "Shop owner created successfully",
-      shopOwner: {
-        id: shopOwner._id,
-        name: shopOwner.name,
-        email: shopOwner.email,
-        phone: shopOwner.phone,
-        address: shopOwner.address,
-        role: shopOwner.role
-      }
-    });
-
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  } 
-};
-const getAllUsers = async (req, res) => {
-  try {
-    const users = await User.find().select('-password'); // استبعاد كلمة المرور
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-
-const getShopOwners = async (req, res) => {
-  try {
-    const shopOwners = await User.find({ role: 'shopowner' }).select('-password');
-    res.json(shopOwners);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-const getNormalUsers = async (req, res) => {
-  try {
-    const users = await User.find({ role: 'user' }).select('-password');
-    
-    // نحول _id → id:String
-    const usersWithId = users.map(user => ({
-      id: user._id.toString(),
-      name: user.name,
-      email: user.email,
-      phone: user.phone,
-      address: user.address,
-      role: user.role
-    }));
-
-    res.json(usersWithId);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-
-
-
-const getUserById = async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id).select('-password');
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-    res.json(user);
-
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-};
-
-
-
-const updateUser = async (req, res) => {
-  try {
-    const { name, email, phone, address, role } = req.body;
-
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { name, email, phone, address, role },
-      { new: true, runValidators: true }
-    ).select('-password');
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    res.json({ message: "User updated successfully", user });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-const deleteUser = async (req, res) => {
-  try {
-    const user = await User.findByIdAndDelete(req.params.id);
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-    res.json({ message: "User deleted successfully" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-const deleteShopOwner = async (req, res) => {
-  try {
-    const owner = await User.findOneAndDelete({ _id: req.params.id, role: 'shopowner' });
-    if (!owner) {
-      return res.status(404).json({ error: "ShopOwner not found" });
-    }
-    res.json({ message: "ShopOwner deleted successfully" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-const updateShopOwner = async (req, res) => {
-  try {
-    const { name, email, phone, address } = req.body;
-
-    const updated = await User.findOneAndUpdate(
-      { _id: req.params.id, role: 'shopowner' },
-      { name, email, phone, address },
-      { new: true, runValidators: true }
-    ).select('-password');
-
-    if (!updated) {
-      return res.status(404).json({ error: "ShopOwner not found" });
-    }
-
-    res.json({ message: "ShopOwner updated successfully", shopOwner: updated });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-
-
-
-
-// ترقية مستخدم ليكون admin
-const makeAdmin = async (req, res) => {
-
-  try {
-    const userId = req.params.id;
-
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { role: 'admin' },
-      { new: true }
-    );
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    return res.json({ message: 'User promoted to admin', user });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-};
-
-/* ───────────────────────── 4) Update Profile ─────────────────────────
-   - يعتمد على userId الآتي من:
-     • middleware (req.userId)  ← في حال استخدمت verifyToken
-     • أو من params (req.params.id) كخيار احتياطي
---------------------------------------------------------------------- */
-const updateUserProfile = async (req, res) => {
-  try {
-    const userId = req.userId || req.params.id;
-    if (!userId) {
-      return res.status(400).json({ error: 'User ID not provided' });
-    }
-
-    const { name, email, password, phone, address, profileImage } = req.body;
-
-    /* تحضير حقول التعديل */
-    const updates = {};
-    if (name)  updates.name  = name;
-    if (email) updates.email = email;
-    if (phone) updates.phone = phone;
-    if (address) updates.address = address;
-    if (profileImage) updates.profileImage = profileImage;
-    if (password) {
-      updates.password = await bcrypt.hash(password, 12);
-    }
-
-    /* تنفيذ التعديل */
-    const updatedUser = await User.findByIdAndUpdate(userId, updates, { new: true }).select('-password');
-    if (!updatedUser) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    return res.json({ message: 'User updated successfully', user: updatedUser });
-  } catch (err) {
-    console.error('Update error:', err);
-    return res.status(500).json({ error: err.message });
-  }
-};
-
-
-
-
-
-module.exports = {
-  register,
-  login,
-  createShopOwner,
-  makeAdmin,
-  getAllUsers,
-  getShopOwners,
-  getUserById,
-  updateUser,
-  deleteUser,
-  getNormalUsers,
-  updateUserProfile,
-  deleteShopOwner,
-  updateShopOwner
-};
+}

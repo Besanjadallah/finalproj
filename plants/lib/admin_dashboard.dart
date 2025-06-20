@@ -6,12 +6,12 @@ import 'package:plants/view_users_page.dart';
 import 'AdminInsightsPage.dart';
 import 'add_shop_owner_page.dart';
 //import 'add_shop_page.dart';
-import 'edit_profile_page.dart';
+//import 'edit_profile_page.dart';
 // import 'view_shop_owners_page.dart';
 // import 'search_page.dart';
 // import 'delete_account_page.dart';
 import 'login_page.dart';
-//import 'profile_page.dart';
+import 'profile_page.dart';
 
 //import 'add_product_page.dart';
 //import 'edit_products_page.dart';
@@ -41,7 +41,7 @@ class AdminDashboard extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const EditProfilePage()),
+                MaterialPageRoute(builder: (_) => const  ProfilePage()),
               );
             },
           ),

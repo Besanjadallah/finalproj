@@ -16,11 +16,10 @@ class CartProvider with ChangeNotifier {
     return total;
   }
 
-  void addItem(String id, String name, double price, String image) {
-    if (_items.containsKey(id)) {
-      // ✅ استخدم update لتحديث العنصر بشكل آمن
+  void addItem(String plantId, String name, double price, String image) {
+    if (_items.containsKey(plantId)) {
       _items.update(
-        id,
+        plantId,
         (existingItem) => CartItem(
           id: existingItem.id,
           name: existingItem.name,
@@ -30,8 +29,8 @@ class CartProvider with ChangeNotifier {
         ),
       );
     } else {
-      _items[id] = CartItem(
-        id: id,
+      _items[plantId] = CartItem(
+        id: plantId,
         name: name,
         price: price,
         image: image,
@@ -46,23 +45,18 @@ class CartProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void clearCart() {
-    _items.clear();
-    notifyListeners();
-  }
-
   void decreaseQuantity(String id) {
     if (_items.containsKey(id)) {
-      final existingItem = _items[id]!;
-      if (existingItem.quantity > 1) {
+      final item = _items[id]!;
+      if (item.quantity > 1) {
         _items.update(
           id,
-          (item) => CartItem(
-            id: item.id,
-            name: item.name,
-            price: item.price,
-            image: item.image,
-            quantity: item.quantity - 1,
+          (i) => CartItem(
+            id: i.id,
+            name: i.name,
+            price: i.price,
+            image: i.image,
+            quantity: i.quantity - 1,
           ),
         );
       } else {
@@ -71,4 +65,22 @@ class CartProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void clear() {
+    _items.clear();
+    notifyListeners();
+  }
+
+  
+  List<Map<String, dynamic>> getCartItemsAsJson() {
+  final data = _items.values.map((item) => {
+    "plantId": item.id,
+    "quantity": item.quantity,
+  }).toList();
+
+  print("📦 Cart JSON: $data");
+
+  return data;
+}
+
 }

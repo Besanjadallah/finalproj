@@ -1,113 +1,43 @@
+// routes/orderRoutes.js
 const express = require('express');
 const router = express.Router();
 
-const Order = require('../models/Order');
-const Shop = require('../models/shop'); 
+const Order = require('../models/order');
+const Shop = require('../models/shop'); // إذا احتجتِ استخدامه مستقبلاً
 
-const { isAuthenticated, shopOwnerOnly, adminOnly, userOnly, userOrShopOwner } = require('../middleware/authMiddleware');
+const { isAuthenticated, userOnly } = require('../middleware/authMiddleware');
 
-// ✅ Add Order — user only
+// ✅ إنشاء طلب جديد — فقط للمستخدم العادي
 router.post('/add', isAuthenticated, userOnly, async (req, res) => {
   try {
-    const { shopId, plantId, plantName, quantity, price } = req.body;
-    const userId = req.userId;
+    const { items, totalPrice, paymentMethod, address } = req.body;
 
-    const order = new Order({
-      shopId,
-      userId,
-      plantId,
-      plantName,
-      quantity,
-      price,
-      date: new Date()
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ message: 'Items array is required' });
+    }
+
+    const newOrder = new Order({
+      userId: req.userId,
+      items,
+      totalPrice,
+      paymentMethod,
+      address,
     });
 
-    await order.save();
-    res.status(201).json(order);
-
+    const savedOrder = await newOrder.save();
+    res.status(201).json(savedOrder);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: 'Error creating order', error: err.message });
   }
 });
 
-// ✅ View My Orders — user only
-router.get('/my', isAuthenticated, userOnly, async (req, res) => {
+// ✅ عرض الطلبات حسب المستخدم — يمكن استخدامها في صفحة "طلباتي"
+router.get('/:userId', isAuthenticated, async (req, res) => {
   try {
-    const orders = await Order.find({ userId: req.userId });
+    const orders = await Order.find({ userId: req.params.userId }).sort({ date: -1 });
     res.json(orders);
   } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ✅ Get all orders for a shop — shopowner only
-router.get('/shop/:shopId', isAuthenticated, shopOwnerOnly, async (req, res) => {
-  try {
-    const orders = await Order.find({ shopId: req.params.shopId });
-    res.json(orders);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ✅ Update order — user or shopowner
-router.put('/:orderId', isAuthenticated, userOrShopOwner, async (req, res) => {
-  try {
-    const order = await Order.findByIdAndUpdate(req.params.orderId, req.body, { new: true });
-    res.json(order);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ✅ Delete order — user or shopowner
-router.delete('/:orderId', isAuthenticated, userOrShopOwner, async (req, res) => {
-  try {
-    await Order.findByIdAndDelete(req.params.orderId);
-    res.json({ message: 'Order deleted' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ✅ Sales Ratio — admin only
-router.get('/sales-ratio', isAuthenticated, adminOnly, async (req, res) => {
-  try {
-    const salesData = await Order.aggregate([
-      {
-        $group: {
-          _id: "$shopId",
-          totalSales: { $sum: { $multiply: ["$price", "$quantity"] } },
-          totalOrders: { $sum: 1 },
-          topItem: { $first: "$plantName" }
-        }
-      },
-      {
-        $lookup: {
-          from: "shops",
-          localField: "_id",
-          foreignField: "_id",
-          as: "shop"
-        }
-      },
-      {
-        $unwind: "$shop"
-      },
-      {
-        $project: {
-          _id: 0,
-          shopId: "$shop._id",
-          shopName: "$shop.name",
-          totalSales: 1,
-          totalOrders: 1,
-          topItem: 1
-        }
-      }
-    ]);
-
-    res.json(salesData);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: 'Error fetching orders', error: err.message });
   }
 });
 
