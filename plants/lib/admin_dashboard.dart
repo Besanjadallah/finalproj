@@ -6,20 +6,12 @@ import 'package:plants/view_users_page.dart';
 import 'AdminInsightsPage.dart';
 import 'add_shop_owner_page.dart';
 //import 'add_shop_page.dart';
-<<<<<<< HEAD
 //import 'edit_profile_page.dart';
-=======
-import 'edit_profile_page.dart';
->>>>>>> tasneem-upload
 // import 'view_shop_owners_page.dart';
 // import 'search_page.dart';
 // import 'delete_account_page.dart';
 import 'login_page.dart';
-<<<<<<< HEAD
 import 'profile_page.dart';
-=======
-//import 'profile_page.dart';
->>>>>>> tasneem-upload
 
 import 'edit_admin_profile_page.dart';
 
@@ -55,11 +47,7 @@ class AdminDashboard extends StatelessWidget {
 
               Navigator.push(
                 context,
-<<<<<<< HEAD
                 MaterialPageRoute(builder: (_) => const  ProfilePage()),
-=======
-                MaterialPageRoute(builder: (_) => const EditProfilePage()),
->>>>>>> tasneem-upload
               );
 
             },

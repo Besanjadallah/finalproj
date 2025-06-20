@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
@@ -11,14 +14,47 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   final TextEditingController _oldPasswordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
 
-  void _changePassword() {
-    // هون المفروض نربطه مع السيرفر لاحقاً
-    print("Old Password: ${_oldPasswordController.text}");
-    print("New Password: ${_newPasswordController.text}");
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Password changed successfully (placeholder).")),
+  Future<void> _changePassword() async {
+    print("🟢 Change password clicked");
+
+    final oldPass = _oldPasswordController.text.trim();
+    final newPass = _newPasswordController.text.trim();
+
+    if (oldPass.isEmpty || newPass.isEmpty) {
+      _showMessage("Please fill in both fields.");
+      return;
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final url = Uri.parse('http://192.168.1.86:8080/api/users/change-password'); // 🎯 غيّري الـ IP إذا لزم
+    final response = await http.put(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'currentPassword': oldPass,
+        'newPassword': newPass,
+      }),
     );
-    Navigator.pop(context); // نرجع لصفحة البروفايل
+
+    print("Response status: ${response.statusCode}");
+    print("Response body: ${response.body}");
+
+    if (response.statusCode == 200) {
+      _showMessage("✅ Password changed successfully!");
+      Navigator.pop(context); // رجوع لصفحة البروفايل
+    } else {
+      final data = jsonDecode(response.body);
+      _showMessage(data['error'] ?? data['message'] ?? "❌ Failed to change password.");
+    }
+  }
+
+  void _showMessage(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
   @override

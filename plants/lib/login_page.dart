@@ -1,28 +1,12 @@
-<<<<<<< HEAD
-=======
-//
-
->>>>>>> tasneem-upload
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-<<<<<<< HEAD
 import 'profile_page.dart';
 import 'signup_page.dart';
 import 'admin_dashboard.dart';
 import 'package:flutter/foundation.dart';
 import 'main_home_page.dart';
-=======
-//import 'profile_page.dart';
-import 'signup_page.dart';
-import 'admin_dashboard.dart';
-//import 'shop_owner_dashboard.dart';
-import 'main_home_page.dart';
-import 'owner.dart';
-
-const String apiBaseUrl = 'http://192.168.56.1:8080'; // Use your backend IP and port
->>>>>>> tasneem-upload
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -42,7 +26,6 @@ class _LoginPageState extends State<LoginPage> {
     if (email.isEmpty || password.isEmpty) {
       showDialog(
         context: context,
-<<<<<<< HEAD
         builder: (_) => AlertDialog(
           title: const Text("Missing Info"),
           content: const Text("Please fill in all fields."),
@@ -53,19 +36,6 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ],
         ),
-=======
-        builder:
-            (_) => AlertDialog(
-              title: const Text("Missing Info"),
-              content: const Text("Please fill in all fields."),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text("OK"),
-                ),
-              ],
-            ),
->>>>>>> tasneem-upload
       );
       return;
     }
@@ -73,11 +43,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       print("📤 Sending login request...");
       final response = await http.post(
-<<<<<<< HEAD
-        Uri.parse('http://192.168.1.86:8080/api/users/login'),
-=======
-        Uri.parse('http://192.168.56.1:8080/api/users/login'),
->>>>>>> tasneem-upload
+        Uri.parse('http://192.168.1.18:8080/api/users/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password}),
       );
@@ -89,10 +55,6 @@ class _LoginPageState extends State<LoginPage> {
       print("📬 Response data: $data");
 
       if (response.statusCode == 200) {
-<<<<<<< HEAD
-=======
-
->>>>>>> tasneem-upload
         print("✅ Login success");
 
         final prefs = await SharedPreferences.getInstance();
@@ -100,33 +62,17 @@ class _LoginPageState extends State<LoginPage> {
         await prefs.setString('role', data['user']['role']);
         await prefs.setString('name', data['user']['name']);
         await prefs.setString('email', data['user']['email']);
-<<<<<<< HEAD
         await prefs.setString('userId', data['user']['id']); // 🟢 خزني userId الحقيقي
         
 
 
         if (!mounted) return;
 
-=======
-
-        if (!mounted) return;
-
-        // التوجيه حسب نوع المستخدم
->>>>>>> tasneem-upload
         if (data['user']['role'] == 'admin') {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => const AdminDashboard()),
           );
-<<<<<<< HEAD
-=======
-        } else if (data['user']['role'] == 'shopowner') {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const ShopOwnerDashboard()),
-          );
-
->>>>>>> tasneem-upload
         } else {
           Navigator.pushReplacement(
             context,
@@ -137,7 +83,6 @@ class _LoginPageState extends State<LoginPage> {
         print("⚠️ Login failed: ${data['error'] ?? data['message']}");
         showDialog(
           context: context,
-<<<<<<< HEAD
           builder: (_) => AlertDialog(
             title: const Text("Error"),
             content: Text(data['error'] ?? data['message'] ?? "Invalid credentials."),
@@ -148,28 +93,12 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ],
           ),
-=======
-
-          builder:
-              (_) => AlertDialog(
-                title: const Text("Error"),
-                content: Text(data['message'] ?? "Invalid email or password."),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text("OK"),
-                  ),
-                ],
-
-              ),
->>>>>>> tasneem-upload
         );
       }
     } catch (e) {
       print("❌ Exception during login: $e");
       showDialog(
         context: context,
-<<<<<<< HEAD
         builder: (_) => AlertDialog(
           title: const Text("Error"),
           content: Text('Failed to connect to server.\n$e'),
@@ -180,19 +109,6 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ],
         ),
-=======
-        builder:
-            (_) => AlertDialog(
-              title: const Text("Error"),
-              content: Text('Failed to connect to server.\n$e'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text("OK"),
-                ),
-              ],
-            ),
->>>>>>> tasneem-upload
       );
     }
   }
@@ -302,11 +218,7 @@ class _LoginPageState extends State<LoginPage> {
                         color: Colors.green,
                         fontWeight: FontWeight.bold,
                       ),
-<<<<<<< HEAD
                     )
-=======
-                    ),
->>>>>>> tasneem-upload
                   ],
                 ),
               ),

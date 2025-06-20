@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
@@ -7,14 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'plant_detail_page.dart';
 import 'providers/cart_provider.dart';
-=======
-// ✅ store_detail_page.dart (معدل ليفتح PlantDetailPage ويظهر AI info من ChatGPT)
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'plant_detail_page.dart';
-import 'providers/cart_provider.dart';
-import 'providers/favorite_provider.dart';
->>>>>>> tasneem-upload
 
 class StoreDetailPage extends StatefulWidget {
   final String storeName;
@@ -26,7 +17,6 @@ class StoreDetailPage extends StatefulWidget {
 }
 
 class _StoreDetailPageState extends State<StoreDetailPage> {
-<<<<<<< HEAD
   String? userId;
   Set<String> favoritePlantIds = {};
 
@@ -41,55 +31,23 @@ class _StoreDetailPageState extends State<StoreDetailPage> {
       'lighting': 'Full Sun',
       'watering': 'Once a week',
       'price': 25.0,
-=======
-  final List<Map<String, dynamic>> allPlants = [
-    {
-      'name': 'Monstera',
-      'store': 'Green Garden',
-      'category': 'Indoor',
-      'image': 'assets/images/monstera.jpg',
-      'temperature': '20-28°C',
-      'lighting': 'Indirect light',
-      'watering': 'Every 1-2 weeks',
-      'price': 20.0,
     },
     {
-      'name': 'Cactus',
-      'store': 'Nature Bloom',
+      '_id': '684ae401bde4925a6fe75295',
+      'name': 'Rose',
+      'store': 'Nature House',
       'category': 'Outdoor',
-      'image': 'assets/images/cactus.jpg',
-      'temperature': '18-35°C',
-      'lighting': 'Full sun',
-      'watering': 'Every 3 weeks',
-      'price': 15.0,
-    },
-    {
-      'name': 'Snake Plant',
-      'store': 'Green Garden',
-      'category': 'Indoor',
-      'image': 'assets/images/snake_plant.jpg',
-      'temperature': '15-30°C',
-      'lighting': 'Low to bright light',
-      'watering': 'Every 2-3 weeks',
-      'price': 18.0,
-    },
-    {
-      'name': 'Bamboo',
-      'store': 'Leafy Living',
-      'category': 'Indoor',
-      'image': 'assets/images/bamboo.jpg',
-      'temperature': '18-35°C',
-      'lighting': 'Partial light',
-      'watering': 'Grows in water',
-      'price': 22.0,
->>>>>>> tasneem-upload
+      'image': 'assets/images/flower.jpg',
+      'temperature': '15-26°C',
+      'lighting': 'Full Sun',
+      'watering': '2-3 per week',
+      'price': 30.0,
     },
   ];
 
   String selectedCategory = 'All';
 
   @override
-<<<<<<< HEAD
   void initState() {
     super.initState();
     loadUserId();
@@ -118,65 +76,39 @@ class _StoreDetailPageState extends State<StoreDetailPage> {
   }
 
   Future<void> toggleFavorite(Map<String, dynamic> plant) async {
-  final plantId = plant['_id'];
-  print("🪴 كامل بيانات النبتة: $plant");
+    final plantId = plant['_id'];
+    if (userId == null || plantId == null) return;
 
-  if (userId == null || plantId == null) {
-    print("❌ إما userId أو plantId مفقود");
-    return;
-  }
-
-  print("🧪 Sending plantId: $plantId");
-
-  if (favoritePlantIds.contains(plantId)) {
-    print("🗑️ النبات موجود مسبقًا، جاري الحذف من المفضلة...");
-    final res = await http.delete(
-      Uri.parse("http://localhost:8080/api/favorites/remove"),
-      headers: {"Content-Type": "application/json"},
-      body: json.encode({
-        "userId": userId,
-        "productId": plantId,
-      }),
-    );
-    print("📩 Response: ${res.body}");
-    if (res.statusCode == 200) {
-      print("✅ تم الحذف بنجاح");
-      setState(() {
-        favoritePlantIds.remove(plantId);
-      });
-    }
-  } else {
-    print("➕ النبات غير موجود، سيتم إضافته للمفضلة...");
-    final res = await http.post(
-      Uri.parse("http://localhost:8080/api/favorites/add"),
-      headers: {"Content-Type": "application/json"},
-      body: json.encode({
-        "userId": userId,
-        "productId": plantId,
-        "name": plant['name'],
-        "image": plant['image'],
-        "price": plant['price'].toString()
-      }),
-    );
-    print("📩 Response: ${res.body}");
-    if (res.statusCode == 201) {
-      print("✅ تم الإضافة للمفضلة بنجاح");
-      setState(() {
-        favoritePlantIds.add(plantId);
-      });
+    if (favoritePlantIds.contains(plantId)) {
+      final res = await http.delete(
+        Uri.parse("http://localhost:8080/api/favorites/remove"),
+        headers: {"Content-Type": "application/json"},
+        body: json.encode({"userId": userId, "productId": plantId}),
+      );
+      if (res.statusCode == 200) {
+        setState(() => favoritePlantIds.remove(plantId));
+      }
+    } else {
+      final res = await http.post(
+        Uri.parse("http://localhost:8080/api/favorites/add"),
+        headers: {"Content-Type": "application/json"},
+        body: json.encode({
+          "userId": userId,
+          "productId": plantId,
+          "name": plant['name'],
+          "image": plant['image'],
+          "price": plant['price'].toString()
+        }),
+      );
+      if (res.statusCode == 201) {
+        setState(() => favoritePlantIds.add(plantId));
+      }
     }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
     final cart = Provider.of<CartProvider>(context);
-=======
-  Widget build(BuildContext context) {
-    final cart = Provider.of<CartProvider>(context);
-    final fav = Provider.of<FavoriteProvider>(context);
->>>>>>> tasneem-upload
     final categories = ['All', 'Indoor', 'Outdoor', 'Garden', 'Big Plants', 'Small Plants'];
 
     final filteredPlants = allPlants.where((plant) {
@@ -198,22 +130,13 @@ class _StoreDetailPageState extends State<StoreDetailPage> {
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.symmetric(vertical: 10),
-<<<<<<< HEAD
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-=======
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
->>>>>>> tasneem-upload
                 colors: [Color(0xFFa5d88e), Color(0xFF8DBF67)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-<<<<<<< HEAD
               borderRadius: BorderRadius.only(
-=======
-              borderRadius: const BorderRadius.only(
->>>>>>> tasneem-upload
                 topLeft: Radius.circular(30),
                 topRight: Radius.circular(30),
               ),
@@ -228,9 +151,7 @@ class _StoreDetailPageState extends State<StoreDetailPage> {
                       label: Text(cat, style: const TextStyle(color: Colors.white)),
                       selected: selectedCategory == cat,
                       onSelected: (_) {
-                        setState(() {
-                          selectedCategory = cat;
-                        });
+                        setState(() => selectedCategory = cat);
                       },
                       selectedColor: Colors.green[800],
                       backgroundColor: Colors.green[400],
@@ -256,12 +177,9 @@ class _StoreDetailPageState extends State<StoreDetailPage> {
                       ),
                       itemBuilder: (context, index) {
                         final plant = filteredPlants[index];
-<<<<<<< HEAD
                         final plantId = plant['_id'];
                         final isFav = favoritePlantIds.contains(plantId);
 
-=======
->>>>>>> tasneem-upload
                         return Stack(
                           children: [
                             Container(
@@ -279,15 +197,13 @@ class _StoreDetailPageState extends State<StoreDetailPage> {
                                         context,
                                         MaterialPageRoute(
                                           builder: (_) => PlantDetailPage(
+                                            id: plant['_id'],
                                             imagePath: plant['image'],
                                             name: plant['name'],
                                             temperature: plant['temperature'],
                                             lighting: plant['lighting'],
                                             watering: plant['watering'],
-<<<<<<< HEAD
-                                            price: plant['price'],
-=======
->>>>>>> tasneem-upload
+                                            price: plant['price'].toDouble(),
                                           ),
                                         ),
                                       );
@@ -327,7 +243,7 @@ class _StoreDetailPageState extends State<StoreDetailPage> {
                                       ),
                                       onPressed: () {
                                         cart.addItem(
-                                          plant['name'],
+                                          plant['_id'],
                                           plant['name'],
                                           plant['price'],
                                           plant['image'],
@@ -339,11 +255,7 @@ class _StoreDetailPageState extends State<StoreDetailPage> {
                                       icon: const Icon(Icons.add_shopping_cart, size: 18),
                                       label: const Text("Add to Cart"),
                                     ),
-<<<<<<< HEAD
                                   ),
-=======
-                                  )
->>>>>>> tasneem-upload
                                 ],
                               ),
                             ),
@@ -352,25 +264,10 @@ class _StoreDetailPageState extends State<StoreDetailPage> {
                               right: 8,
                               child: IconButton(
                                 icon: Icon(
-<<<<<<< HEAD
                                   isFav ? Icons.favorite : Icons.favorite_border,
                                   color: Colors.red,
                                 ),
                                 onPressed: () => toggleFavorite(plant),
-=======
-                                  fav.isFavorite(plant['name'])
-                                      ? Icons.favorite
-                                      : Icons.favorite_border,
-                                  color: Colors.red,
-                                ),
-                                onPressed: () {
-                                  fav.toggleFavorite(
-                                    plant['name'],
-                                    plant['name'],
-                                    plant['image'],
-                                  );
-                                },
->>>>>>> tasneem-upload
                               ),
                             ),
                           ],

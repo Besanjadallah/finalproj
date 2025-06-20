@@ -4,31 +4,23 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
-<<<<<<< HEAD
 const app = express();
 
 // ✅ تسجيل الراوترات
-=======
-// استيراد الراوتات
->>>>>>> tasneem-upload
 const userRoutes = require('./routes/userRoutes');
 const shopRoutes = require('./routes/shopRoutes');
 const plantRoutes = require('./routes/plantRoutes');
 const orderRoutes = require('./routes/orderRoutes');
-<<<<<<< HEAD
-const favoriteRoutes = require('./routes/favoriteRoutes'); // ✅ تم إضافته هنا
+const favoriteRoutes = require('./routes/favoriteRoutes');
+const plantAnalysisRoutes = require('./routes/plantAnalysisRoutes');
 
 console.log('🧩 جميع الراوترات تم تحميلها');
 
 app.use(express.json());
 app.use(cors());
 app.use('/uploads', express.static('uploads'));
-=======
+app.use('/api/plant', plantAnalysisRoutes);
 
-const app = express();
-app.use(express.json());
-app.use(cors());
->>>>>>> tasneem-upload
 
 /* ──────────── فحص متغيرات البيئة ──────────── */
 console.log('🛠️ Checking environment variables:');
@@ -41,18 +33,11 @@ if (!process.env.MONGO_URI) {
 console.log('PORT:', process.env.PORT || 'default 8080');
 
 /* ──────────── ربط الراوتات ──────────── */
-<<<<<<< HEAD
 app.use('/api/users', userRoutes);          // تسجيل الدخول والتسجيل
 app.use('/api/shops', shopRoutes);          // راوتر المحلات
 app.use('/api/plants', plantRoutes);        // راوتر النباتات
-app.use('/api/orders', orderRoutes);        // راوتر الطلبات
-app.use('/api/favorites', favoriteRoutes);  // ✅ راوتر المفضلة
-=======
-app.use('/api/users', userRoutes);                // تسجيل الدخول والتسجيل
-app.use('/api/shops', shopRoutes);                // راوتر المحل
-app.use('/api/plants', plantRoutes);              // راوتر النباتات
-app.use('/api/orders', orderRoutes);              // راوتر الطلبات
->>>>>>> tasneem-upload
+app.use('/api/orders', orderRoutes);        // ✅ راوتر الطلبات (جديد)
+app.use('/api/favorites', favoriteRoutes);  // راوتر المفضلة
 
 /* ──────────── مسار اختبار ──────────── */
 app.get('/', (req, res) => {

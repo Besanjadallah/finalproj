@@ -1,4 +1,4 @@
-// ✅ main_home.dart (بعد إضافة زر "أسئلة المجتمع" لفتح صفحة الأسئلة)
+// ✅ main_home.dart (بعد استبدال زر "الأسئلة" بزر تحليل النبتة)
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
@@ -6,19 +6,13 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:typed_data';
 import 'dart:io' show File;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'ask_question_page.dart';
-
-
-<<<<<<< HEAD
+import 'view_orders_page.dart';
 import 'profile_page.dart';
-=======
-//import 'profile_page.dart';
-import 'edit_profile_page.dart';
->>>>>>> tasneem-upload
 import 'favorites_page.dart';
 import 'cart_page.dart';
 import 'store_detail_page.dart';
-import 'questions_page.dart'; // ✅ استيراد صفحة الأسئلة
+import 'plant_chat_page.dart';
+
 
 class MainHomePage extends StatefulWidget {
   const MainHomePage({super.key});
@@ -72,65 +66,64 @@ class _MainHomePageState extends State<MainHomePage> {
     });
   }
 
- Future<void> chooseImageAndSend() async {
-  showModalBottomSheet(
-    context: context,
-    builder: (BuildContext context) {
-      return SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('Pick from Gallery'),
-              onTap: () async {
-                final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-                Navigator.pop(context);
-                if (pickedFile != null) {
-                  if (kIsWeb) {
-                    Uint8List bytes = await pickedFile.readAsBytes();
-                    await _uploadWebImage(bytes);
-                  } else {
-                    File file = File(pickedFile.path);
-                    await _uploadMobileImage(file);
+  Future<void> chooseImageAndSend() async {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Pick from Gallery'),
+                onTap: () async {
+                  final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+                  Navigator.pop(context);
+                  if (pickedFile != null) {
+                    if (kIsWeb) {
+                      Uint8List bytes = await pickedFile.readAsBytes();
+                      await _uploadWebImage(bytes);
+                    } else {
+                      File file = File(pickedFile.path);
+                      await _uploadMobileImage(file);
+                    }
                   }
-                }
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Take a Photo'),
-              onTap: () async {
-                final pickedFile = await _picker.pickImage(source: ImageSource.camera);
-                Navigator.pop(context);
-                if (pickedFile != null) {
-                  if (kIsWeb) {
-                    Uint8List bytes = await pickedFile.readAsBytes();
-                    await _uploadWebImage(bytes);
-                  } else {
-                    File file = File(pickedFile.path);
-                    await _uploadMobileImage(file);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Take a Photo'),
+                onTap: () async {
+                  final pickedFile = await _picker.pickImage(source: ImageSource.camera);
+                  Navigator.pop(context);
+                  if (pickedFile != null) {
+                    if (kIsWeb) {
+                      Uint8List bytes = await pickedFile.readAsBytes();
+                      await _uploadWebImage(bytes);
+                    } else {
+                      File file = File(pickedFile.path);
+                      await _uploadMobileImage(file);
+                    }
                   }
-                }
-              },
-            ),
-          ],
-        ),
-      );
-    },
-  );
-}
-
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   Future<void> _uploadMobileImage(File imageFile) async {
-    var request = http.MultipartRequest('POST', Uri.parse('http://10.0.2.2:8080/scan'));
+    var request = http.MultipartRequest('POST', Uri.parse('http://10.0.2.2:8080/api/plant/analyze-plant'));
     request.files.add(await http.MultipartFile.fromPath('image', imageFile.path));
     var response = await request.send();
     _handleResponse(response);
   }
 
   Future<void> _uploadWebImage(Uint8List bytes) async {
-    var request = http.MultipartRequest('POST', Uri.parse('http://localhost:8080/scan'));
+    var request = http.MultipartRequest('POST', Uri.parse('http://localhost:8080/api/plant/analyze-plant'));
     request.files.add(http.MultipartFile.fromBytes('image', bytes, filename: 'web_img.jpg'));
     var response = await request.send();
     _handleResponse(response);
@@ -142,13 +135,13 @@ class _MainHomePageState extends State<MainHomePage> {
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          title: const Text("Matched Plant"),
+          title: const Text("🔬 تحليل النبتة"),
           content: Text(res),
           actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text("OK"))],
         ),
       );
     } else {
-      print("Upload failed");
+      print("❌ Upload failed");
     }
   }
 
@@ -184,14 +177,12 @@ class _MainHomePageState extends State<MainHomePage> {
                   child: Row(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.notifications_none, color: Colors.white),
+                        icon: const Icon(Icons.receipt_long),
+                        tooltip: 'My Orders',
                         onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (_) => const AlertDialog(
-                              title: Text("Notifications"),
-                              content: Text("You have new messages about your plants 🌿."),
-                            ),
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const ViewOrdersPage()),
                           );
                         },
                       ),
@@ -233,15 +224,16 @@ class _MainHomePageState extends State<MainHomePage> {
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.forum, color: Colors.white),
-                        tooltip: "Community Q&A",
-                        onPressed: () {
-                          Navigator.push(
+                            icon: const Icon(Icons.science, color: Colors.white),
+                            tooltip: "Plant analysis",
+                            onPressed: () {
+                            Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const QuestionsPage()),
-                          );
-                        },
-                      ),
+                            MaterialPageRoute(builder: (_) => const PlantChatPage()),
+                        );
+                       },
+                       ),
+
                       IconButton(
                         icon: const Icon(Icons.favorite_border, color: Colors.white),
                         onPressed: () {
@@ -255,11 +247,7 @@ class _MainHomePageState extends State<MainHomePage> {
                       IconButton(
                         icon: const Icon(Icons.person, color: Colors.white),
                         onPressed: () {
-<<<<<<< HEAD
                           Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfilePage()));
-=======
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => const EditProfilePage()));
->>>>>>> tasneem-upload
                         },
                       ),
                     ],

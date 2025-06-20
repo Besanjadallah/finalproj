@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'admin_dashboard.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ViewOrdersPage extends StatefulWidget {
   const ViewOrdersPage({super.key});
@@ -9,326 +11,96 @@ class ViewOrdersPage extends StatefulWidget {
 }
 
 class _ViewOrdersPageState extends State<ViewOrdersPage> {
-  // بيانات الطلبات نموذجية مع تفاصيل إضافية
-  List<Map<String, dynamic>> orders = [
-    {
-      'orderId': 'ORD001',
-      'customerName': 'Alice',
-      'productName': 'Aloe Vera',
-      'quantity': 2,
-      'price': 21.98,
-      'status': 'Pending',
-      'date': '2025-05-10',
-      'address': '123 Green St, Plant City',
-      'phone': '+1234567890',
-    },
-    {
-      'orderId': 'ORD002',
-      'customerName': 'Bob',
-      'productName': 'Peace Lily',
-      'quantity': 1,
-      'price': 14.50,
-      'status': 'Shipped',
-      'date': '2025-05-12',
-      'address': '456 Flower Rd, Garden Town',
-      'phone': '+0987654321',
-    },
-    {
-      'orderId': 'ORD003',
-      'customerName': 'Charlie',
-      'productName': 'Snake Plant',
-      'quantity': 3,
-      'price': 26.97,
-      'status': 'Pending',
-      'date': '2025-05-13',
-      'address': '789 Leaf Ave, Nature City',
-      'phone': '+1122334455',
-    },
-  ];
+  late Future<List<dynamic>> _ordersFuture;
 
-  String _searchQuery = '';
-  String _filterStatus = 'All';
-
-  // تغيير حالة الطلب بين Pending و Shipped
-  void _toggleOrderStatus(int index) {
-    setState(() {
-      if (orders[index]['status'] == 'Pending') {
-        orders[index]['status'] = 'Shipped';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Order ${orders[index]['orderId']} marked as Shipped.'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      } else {
-        orders[index]['status'] = 'Pending';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Order ${orders[index]['orderId']} marked as Pending.'),
-            backgroundColor: Colors.orange,
-          ),
-        );
-      }
-    });
+  @override
+  void initState() {
+    super.initState();
+    _ordersFuture = fetchOrders();
   }
 
-  // حذف الطلب
-  void _deleteOrder(int index) {
-    String deletedOrderId = orders[index]['orderId'];
-    setState(() {
-      orders.removeAt(index);
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Order $deletedOrderId has been deleted.'),
-        backgroundColor: Colors.red,
-      ),
+  Future<List<dynamic>> fetchOrders() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final userId = prefs.getString('userId');
+
+    final url = Uri.parse('http://192.168.1.18:8080/api/orders/$userId');
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
     );
-  }
 
-  // لون الحالة حسب نوعها
-  Color _getStatusColor(String status) {
-    switch (status) {
-      case 'Shipped':
-        return Colors.green;
-      case 'Pending':
-        return Colors.orange;
-      default:
-        return Colors.grey;
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      print("❌ Failed to fetch orders: ${response.statusCode} | ${response.body}");
+      return [];
     }
-  }
-
-  // تصفية الطلبات بناء على البحث والحالة
-  List<Map<String, dynamic>> get _filteredOrders {
-    return orders.where((order) {
-      final matchesStatus = _filterStatus == 'All' || order['status'] == _filterStatus;
-      final matchesSearch = _searchQuery.isEmpty ||
-          order['orderId'].toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          order['customerName'].toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          order['productName'].toLowerCase().contains(_searchQuery.toLowerCase());
-      return matchesStatus && matchesSearch;
-    }).toList();
-  }
-
-  // نافذة تفاصيل الطلب
-  void _showOrderDetails(Map<String, dynamic> order) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text('Order Details (${order['orderId']})'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Customer: ${order['customerName']}'),
-            Text('Product: ${order['productName']}'),
-            Text('Quantity: ${order['quantity']}'),
-            Text('Price: \$${order['price'].toStringAsFixed(2)}'),
-            Text('Status: ${order['status']}'),
-            Text('Date: ${order['date']}'),
-            Text('Address: ${order['address']}'),
-            Text('Phone: ${order['phone']}'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            child: const Text('Close'),
-            onPressed: () => Navigator.pop(context),
-          )
-        ],
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
+        title: const Text('My Orders'),
         backgroundColor: const Color(0xFF8DBF67),
-        title: const Text('View Orders'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new),
-           onPressed: () {
-          //   Navigator.pushReplacement(
-          //     context,
-          //     MaterialPageRoute(builder: (_) => const AdminDashboard()),
-          //   );
-          },
-        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            // مربع البحث
-            TextField(
-              decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.search, color: Colors.green),
-                hintText: 'Search orders...',
-                filled: true,
-                fillColor: Colors.grey.shade200,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  _searchQuery = value;
-                });
-              },
-            ),
-            const SizedBox(height: 10),
-            // فلترة الحالة
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: ['All', 'Pending', 'Shipped'].map((status) {
-                bool isSelected = _filterStatus == status;
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
-                  child: ChoiceChip(
-                    label: Text(status),
-                    selected: isSelected,
-                    selectedColor: const Color(0xFF8DBF67),
-                    backgroundColor: Colors.grey.shade300,
-                    labelStyle: TextStyle(
-                      color: isSelected ? Colors.white : Colors.black87,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    onSelected: (_) {
-                      setState(() {
-                        _filterStatus = status;
-                      });
-                    },
-                  ),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 15),
-            // قائمة الطلبات
-            Expanded(
-              child: _filteredOrders.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'No orders found.',
-                        style: TextStyle(fontSize: 18, color: Colors.grey),
+      body: FutureBuilder<List<dynamic>>(
+        future: _ordersFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No orders found.'));
+          }
+
+          final orders = snapshot.data!;
+          return ListView.builder(
+            itemCount: orders.length,
+            itemBuilder: (context, index) {
+              final order = orders[index];
+              final items = order['items'] as List;
+              final total = order['totalPrice'];
+              final date = order['date']?.substring(0, 10) ?? 'N/A';
+
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                elevation: 4,
+                child: ListTile(
+                  title: Text("₪${total.toStringAsFixed(2)} | ${items.length} item(s)"),
+                  subtitle: Text("Date: $date"),
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: const Text("Order Details"),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: items.map<Widget>((item) {
+                            return Text(
+                                "- ${item['name']} x${item['quantity']} (₪${item['price']})");
+                          }).toList(),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text("Close"),
+                          )
+                        ],
                       ),
-                    )
-                  : ListView.builder(
-                      itemCount: _filteredOrders.length,
-                      itemBuilder: (context, index) {
-                        final order = _filteredOrders[index];
-                        return Card(
-                          elevation: 5,
-                          margin: const EdgeInsets.symmetric(vertical: 10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.all(20),
-                            leading: CircleAvatar(
-                              backgroundColor: _getStatusColor(order['status']),
-                              child: Text(
-                                order['orderId'].substring(order['orderId'].length - 3),
-                                style: const TextStyle(
-                                    color: Colors.white, fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                            title: Text(
-                              '${order['productName']} x${order['quantity']}',
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 18),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Customer: ${order['customerName']}'),
-                                Text('Total Price: \$${order['price'].toStringAsFixed(2)}'),
-                                const SizedBox(height: 5),
-                                Row(
-                                  children: [
-                                    const Text(
-                                      'Status: ',
-                                      style: TextStyle(fontWeight: FontWeight.bold),
-                                    ),
-                                    Text(
-                                      order['status'],
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: _getStatusColor(order['status']),
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              ],
-                            ),
-                            trailing: SizedBox(
-                              width: 120,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  // زر عرض التفاصيل
-                                  IconButton(
-                                    tooltip: 'View Details',
-                                    icon: const Icon(Icons.info, color: Colors.blue),
-                                    onPressed: () => _showOrderDetails(order),
-                                  ),
-                                  // زر تغيير الحالة
-                                  ElevatedButton(
-                                    onPressed: () => _toggleOrderStatus(orders.indexOf(order)),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          order['status'] == 'Pending' ? Colors.green : Colors.orange,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      order['status'] == 'Pending'
-                                          ? 'Mark Shipped'
-                                          : 'Mark Pending',
-                                      style: const TextStyle(fontSize: 12),
-                                    ),
-                                  ),
-                                  // زر حذف الطلب
-                                  IconButton(
-                                    tooltip: 'Delete Order',
-                                    icon: const Icon(Icons.delete, color: Colors.red),
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (_) => AlertDialog(
-                                          title: const Text('Confirm Deletion'),
-                                          content: Text(
-                                              'Are you sure you want to delete order ${order['orderId']}?'),
-                                          actions: [
-                                            TextButton(
-                                              child: const Text('Cancel'),
-                                              onPressed: () => Navigator.pop(context),
-                                            ),
-                                            TextButton(
-                                              child: const Text('Delete', style: TextStyle(color: Colors.red)),
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                                _deleteOrder(orders.indexOf(order));
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-            ),
-          ],
-        ),
+                    );
+                  },
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }

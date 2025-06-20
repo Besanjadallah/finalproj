@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 //import 'profile_page.dart';
 import 'edit_profile_page.dart';
 import 'main_home_page.dart';
-const String apiBaseUrl = 'http://192.168.56.1:8080'; // Use your backend IP and port
+const String apiBaseUrl = 'http://192.168.1.18:8080'; // Use your backend IP and port
 
 class SignupPage extends StatefulWidget {
   const SignupPage({Key? key}) : super(key: key);

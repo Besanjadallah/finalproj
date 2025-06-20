@@ -2,11 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Shop = require('../models/Shop');
 
-<<<<<<< HEAD
 const { isAuthenticated, shopOwnerOnly, adminOnly } = require('../middlewares/authMiddleware');
-=======
-const { isAuthenticated, shopOwnerOnly, adminOnly } = require('../middleware/authMiddleware');
->>>>>>> tasneem-upload
 
 // ✅ Add or Update shop info — shopowner only
 router.post('/add', isAuthenticated, shopOwnerOnly, async (req, res) => {

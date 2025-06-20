@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
  */
 const isAuthenticated = (req, res, next) => {
   const rawHeader = req.header('Authorization');
-  console.log("🔐 Incoming Authorization header:", rawHeader); // ✅ Debug مهم
+  console.log("🔐 Incoming Authorization header:", rawHeader);
 
   const token = rawHeader?.replace('Bearer ', '');
   if (!token) {
@@ -15,11 +15,10 @@ const isAuthenticated = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    req.userId = decoded.id;
-    req.user._id = decoded.id;
 
-    console.log("✅ Authenticated user:", decoded); // ✅ Debug
+    req.user = decoded;
+    req.userId = decoded.id || decoded._id; // ⬅️ استخدم id أو _id أيًا كان موجود
+    console.log("✅ Authenticated user:", decoded);
 
     next();
   } catch (err) {
