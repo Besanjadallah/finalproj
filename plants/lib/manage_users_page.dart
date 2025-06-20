@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'admin_dashboard.dart';
 
 class ManageUsersPage extends StatefulWidget {
   const ManageUsersPage({super.key});
@@ -38,34 +37,37 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
 
   // تحديث بيانات المستخدم (مثلاً تعديل الدور)
   void _editUser(int index) {
-    TextEditingController roleController = TextEditingController(text: users[index]['role']);
+    TextEditingController roleController = TextEditingController(
+      text: users[index]['role'],
+    );
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: Text('Edit User Role (${users[index]['name']})'),
-        content: TextField(
-          controller: roleController,
-          decoration: const InputDecoration(labelText: 'Role (Admin/User)'),
-        ),
-        actions: [
-          TextButton(
-            child: const Text('Cancel'),
-            onPressed: () => Navigator.pop(context),
+      builder:
+          (_) => AlertDialog(
+            title: Text('Edit User Role (${users[index]['name']})'),
+            content: TextField(
+              controller: roleController,
+              decoration: const InputDecoration(labelText: 'Role (Admin/User)'),
+            ),
+            actions: [
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () => Navigator.pop(context),
+              ),
+              ElevatedButton(
+                child: const Text('Save'),
+                onPressed: () {
+                  setState(() {
+                    users[index]['role'] = roleController.text.trim();
+                  });
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('User role updated successfully')),
+                  );
+                },
+              ),
+            ],
           ),
-          ElevatedButton(
-            child: const Text('Save'),
-            onPressed: () {
-              setState(() {
-                users[index]['role'] = roleController.text.trim();
-              });
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('User role updated successfully')),
-              );
-            },
-          ),
-        ],
-      ),
     );
   }
 
@@ -135,86 +137,115 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
             const SizedBox(height: 15),
             // قائمة المستخدمين
             Expanded(
-              child: _filteredUsers.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'No users found.',
-                        style: TextStyle(fontSize: 18, color: Colors.grey),
-                      ),
-                    )
-                  : ListView.builder(
-                      itemCount: _filteredUsers.length,
-                      itemBuilder: (context, index) {
-                        final user = _filteredUsers[index];
-                        return Card(
-                          elevation: 4,
-                          margin: const EdgeInsets.symmetric(vertical: 8),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.all(20),
-                            leading: CircleAvatar(
-                              backgroundColor: Colors.green.shade700,
-                              child: Text(
-                                user['name'][0].toUpperCase(),
-                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              child:
+                  _filteredUsers.isEmpty
+                      ? const Center(
+                        child: Text(
+                          'No users found.',
+                          style: TextStyle(fontSize: 18, color: Colors.grey),
+                        ),
+                      )
+                      : ListView.builder(
+                        itemCount: _filteredUsers.length,
+                        itemBuilder: (context, index) {
+                          final user = _filteredUsers[index];
+                          return Card(
+                            elevation: 4,
+                            margin: const EdgeInsets.symmetric(vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.all(20),
+                              leading: CircleAvatar(
+                                backgroundColor: Colors.green.shade700,
+                                child: Text(
+                                  user['name'][0].toUpperCase(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
-                            ),
-                            title: Text(
-                              user['name'],
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Email: ${user['email']}'),
-                                Text('Role: ${user['role']}'),
-                                Text('Phone: ${user['phone']}'),
-                              ],
-                            ),
-                            trailing: SizedBox(
-                              width: 110,
-                              child: Row(
+                              title: Text(
+                                user['name'],
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  IconButton(
-                                    tooltip: 'Edit User',
-                                    icon: const Icon(Icons.edit, color: Colors.blue),
-                                    onPressed: () => _editUser(users.indexOf(user)),
-                                  ),
-                                  IconButton(
-                                    tooltip: 'Delete User',
-                                    icon: const Icon(Icons.delete, color: Colors.red),
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (_) => AlertDialog(
-                                          title: const Text('Confirm Deletion'),
-                                          content: Text('Are you sure you want to delete user ${user['name']}?'),
-                                          actions: [
-                                            TextButton(
-                                              child: const Text('Cancel'),
-                                              onPressed: () => Navigator.pop(context),
-                                            ),
-                                            TextButton(
-                                              child: const Text('Delete', style: TextStyle(color: Colors.red)),
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                                _deleteUser(users.indexOf(user));
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                  ),
+                                  Text('Email: ${user['email']}'),
+                                  Text('Role: ${user['role']}'),
+                                  Text('Phone: ${user['phone']}'),
                                 ],
                               ),
+                              trailing: SizedBox(
+                                width: 110,
+                                child: Row(
+                                  children: [
+                                    IconButton(
+                                      tooltip: 'Edit User',
+                                      icon: const Icon(
+                                        Icons.edit,
+                                        color: Colors.blue,
+                                      ),
+                                      onPressed:
+                                          () => _editUser(users.indexOf(user)),
+                                    ),
+                                    IconButton(
+                                      tooltip: 'Delete User',
+                                      icon: const Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                      ),
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder:
+                                              (_) => AlertDialog(
+                                                title: const Text(
+                                                  'Confirm Deletion',
+                                                ),
+                                                content: Text(
+                                                  'Are you sure you want to delete user ${user['name']}?',
+                                                ),
+                                                actions: [
+                                                  TextButton(
+                                                    child: const Text('Cancel'),
+                                                    onPressed:
+                                                        () => Navigator.pop(
+                                                          context,
+                                                        ),
+                                                  ),
+                                                  TextButton(
+                                                    child: const Text(
+                                                      'Delete',
+                                                      style: TextStyle(
+                                                        color: Colors.red,
+                                                      ),
+                                                    ),
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                      _deleteUser(
+                                                        users.indexOf(user),
+                                                      );
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
+                          );
+                        },
+                      ),
             ),
           ],
         ),

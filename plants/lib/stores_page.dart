@@ -1,24 +1,13 @@
 import 'package:flutter/material.dart';
 import 'store_detail_page.dart'; // ✅ استدعاء صفحة تفاصيل المحل
-import 'plant_detail_page.dart';
-
 
 class StoresPage extends StatelessWidget {
   StoresPage({super.key});
 
   final List<Map<String, String>> stores = [
-    {
-      'name': 'Green Life',
-      'image': 'assets/images/store1.jpg',
-    },
-    {
-      'name': 'Nature House',
-      'image': 'assets/images/store2.jpg',
-    },
-    {
-      'name': 'Leafy World',
-      'image': 'assets/images/store3.jpg',
-    },
+    {'name': 'Green Life', 'image': 'assets/images/store1.jpg'},
+    {'name': 'Nature House', 'image': 'assets/images/store2.jpg'},
+    {'name': 'Leafy World', 'image': 'assets/images/store3.jpg'},
   ];
 
   @override
@@ -67,7 +56,9 @@ class StoresPage extends StatelessWidget {
                 child: Column(
                   children: [
                     ClipRRect(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(16),
+                      ),
                       child: Image.asset(
                         store['image']!,
                         height: 100,

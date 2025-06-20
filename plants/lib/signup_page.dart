@@ -4,10 +4,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 //import 'profile_page.dart';
 import 'edit_profile_page.dart';
 import 'main_home_page.dart';
-const String apiBaseUrl = 'http://192.168.56.1:8080'; // Use your backend IP and port
+
+const String apiBaseUrl =
+    'http://192.168.56.1:8080'; // Use your backend IP and port
 
 class SignupPage extends StatefulWidget {
-  const SignupPage({Key? key}) : super(key: key);
+  const SignupPage({super.key});
 
   @override
   _SignupPageState createState() => _SignupPageState();
@@ -46,7 +48,7 @@ class _SignupPageState extends State<SignupPage> {
     try {
       final dio = Dio();
       final response = await dio.post(
-  '$apiBaseUrl/api/users/register',
+        '$apiBaseUrl/api/users/register',
         options: Options(headers: {'Content-Type': 'application/json'}),
         data: {
           'name': fullNameController.text,
@@ -80,9 +82,7 @@ class _SignupPageState extends State<SignupPage> {
                       Navigator.pop(context);
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(
-                          builder: (_) => const MainHomePage(),
-                        ),
+                        MaterialPageRoute(builder: (_) => const MainHomePage()),
                       );
                     },
                     child: const Text("OK"),

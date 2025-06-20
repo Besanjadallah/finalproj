@@ -1,54 +1,108 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'editshopinfopage.dart';
+import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'add-plant-page.dart';
 import 'edit_profile_page.dart';
-final List<Map<String, dynamic>> plants = [
-  {
-    'name': 'Basil',
-    'price': 10.0,
-    'quantity': 3,
-    'quality': 'Excellent',
-    'type': 'Indoor',
-    'image': 'assets/images/bg.jpg',
-  },
-  {
-    'name': 'Mint',
-    'price': 12.5,
-    'quantity': 8,
-    'quality': 'Good',
-    'type': 'Outdoor',
-    'image': 'assets/images/bg.jpg',
-  },
-  {
-    'name': 'Cactus',
-    'price': 15.0,
-    'quantity': 20,
-    'quality': 'Excellent',
-    'type': 'Decorative',
-    'image': 'assets/images/bg.jpg',
-  },
-];
+import 'editshopinfopage.dart';
+import 'edit_plant_page.dart';
 
-final List<Map<String, dynamic>> orders = [
-  {
-    'user': 'Alaa Khaled',
-    'plant': 'Cactus',
-    'price': 15.0,
-    'date': DateTime.now(),
-  },
-  {
-    'user': 'Sara Naser',
-    'plant': 'Mint',
-    'price': 12.5,
-    'date': DateTime.now().subtract(const Duration(days: 1)),
-  },
-];
+const String apiBaseUrl = 'http://192.168.56.1:8080';
+final Dio dio = Dio();
 
-// ================== ShopOwnerDashboard ==================
-class ShopOwnerDashboard extends StatelessWidget {
+class ShopOwnerDashboard extends StatefulWidget {
   const ShopOwnerDashboard({super.key});
+
+  @override
+  State<ShopOwnerDashboard> createState() => _ShopOwnerDashboardState();
+}
+
+class _ShopOwnerDashboardState extends State<ShopOwnerDashboard> {
+  List<Map<String, dynamic>> plants = [];
+  List<Map<String, dynamic>> orders = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final shopId = prefs.getString('shopId');
+    final token = prefs.getString('token');
+
+    try {
+      final plantRes = await dio.get('$apiBaseUrl/api/plants/shop/$shopId');
+      final orderRes = await dio.get(
+        '$apiBaseUrl/api/orders/shop/$shopId',
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+
+      setState(() {
+        plants = List<Map<String, dynamic>>.from(plantRes.data);
+        orders = List<Map<String, dynamic>>.from(orderRes.data);
+      });
+    } catch (e) {
+      print("❌ Error loading data: $e");
+    }
+  }
+
+  Future<void> _deletePlant(String plantId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    try {
+      final response = await dio.delete(
+        '$apiBaseUrl/api/plants/$plantId',
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() => plants.removeWhere((p) => p['_id'] == plantId));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('✅ Plant deleted')));
+      } else {
+        print('❌ Delete failed: ${response.statusCode}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('❌ Failed to delete plant')),
+        );
+      }
+    } catch (e) {
+      print('❌ Error deleting plant: $e');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('❌ Error deleting plant')));
+    }
+  }
+
+  Future<void> _deleteOrder(String orderId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    try {
+      final response = await dio.delete(
+        '$apiBaseUrl/api/orders/$orderId',
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() => orders.removeWhere((o) => o['_id'] == orderId));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('✅ Order deleted')));
+      } else {
+        print('❌ Failed to delete order: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('❌ Error deleting order: $e');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('❌ Error deleting order')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,46 +116,64 @@ class ShopOwnerDashboard extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.add_box),
             tooltip: 'Add New Plant',
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const AddPlantPage()));
+            onPressed: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AddPlantPage()),
+              );
+              if (result == true) {
+                _fetchData(); // ✅ تحديث الصفحة الرئيسية بعد الإضافة
+              }
             },
           ),
           IconButton(
             icon: const Icon(Icons.account_circle),
             tooltip: 'Profile',
             onPressed: () {
-
-             Navigator.push(
+              Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const EditProfilePage()),
               );
             },
           ),
           IconButton(
-  icon: const Icon(Icons.store),
-  tooltip: 'Edit Shop Info',
-  onPressed: () {
-    Navigator.push(context, MaterialPageRoute(builder: (_) => const EditShopInfoPage()));
-  },
-),
-
+            icon: const Icon(Icons.store),
+            tooltip: 'Edit Shop Info',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const EditShopInfoPage()),
+              );
+            },
+          ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _sectionTitle("Inventory & Alerts"),
-            Wrap(
-              spacing: 16,
-              runSpacing: 16,
-              children: plants.map((plant) => _plantCard(context, plant)).toList(),
-            ),
-            const SizedBox(height: 24),
-            _sectionTitle("Recent Orders"),
-            ...orders.map((order) => _orderTile(order)).toList(),
-          ],
+      body: RefreshIndicator(
+        onRefresh: _fetchData,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Inventory & Alerts",
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              Wrap(
+                spacing: 16,
+                runSpacing: 16,
+                children:
+                    plants.map((plant) => _plantCard(context, plant)).toList(),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                "Recent Orders",
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              ...orders.map((order) => _orderTile(order)).toList(),
+            ],
+          ),
         ),
       ),
     );
@@ -115,7 +187,7 @@ class ShopOwnerDashboard extends StatelessWidget {
         color: isLow ? Colors.red[50] : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3))
+          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3)),
         ],
       ),
       padding: const EdgeInsets.all(12),
@@ -123,36 +195,60 @@ class ShopOwnerDashboard extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: Image.asset(plant['image'], width: 60, height: 60, fit: BoxFit.cover),
+            child: Image.network(
+              '$apiBaseUrl${plant['imageUrl'] ?? ''}',
+              width: 60,
+              height: 60,
+              fit: BoxFit.cover,
+              errorBuilder:
+                  (_, __, ___) => const Icon(Icons.image_not_supported),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(plant['name'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(
+                  plant['name'],
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text("Price: \$${plant['price']}", style: const TextStyle(fontSize: 14)),
-                Text("Qty: ${plant['quantity']}", style: TextStyle(fontSize: 14, color: isLow ? Colors.red : Colors.black)),
-                Text("Quality: ${plant['quality']}", style: const TextStyle(fontSize: 14, color: Colors.blueGrey)),
-                Text("Type: ${plant['type']}", style: const TextStyle(fontSize: 14, color: Colors.teal)),
+                Text("Price: \$${plant['price']}"),
+                Text(
+                  "Qty: ${plant['quantity']}",
+                  style: TextStyle(color: isLow ? Colors.red : Colors.black),
+                ),
+                Text("Quality: ${plant['quality']}"),
+                Text("Type: ${plant['type']}"),
               ],
             ),
           ),
           Column(
             children: [
               IconButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => EditPlantPage(plant: plant)));
-                },
                 icon: const Icon(Icons.edit, color: Colors.orange),
+                onPressed: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => EditPlantPage(plant: plant),
+                    ),
+                  );
+                  if (result == true) {
+                    _fetchData(); // ✅ تحديث بعد التعديل
+                  }
+                },
               ),
               IconButton(
-                onPressed: () {},
                 icon: const Icon(Icons.delete, color: Colors.red),
+                onPressed: () => _deletePlant(plant['_id']),
               ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -164,211 +260,15 @@ class ShopOwnerDashboard extends StatelessWidget {
       elevation: 2,
       margin: const EdgeInsets.symmetric(vertical: 6),
       child: ListTile(
-        leading: const CircleAvatar(backgroundColor: Color(0xFF6D9773), child: Icon(Icons.person, color: Colors.white)),
-        title: Text(order['user'], style: const TextStyle(fontWeight: FontWeight.w600)),
-        subtitle: Text("Bought ${order['plant']} for \$${order['price']}"),
-        trailing: Text(DateFormat('MMM d').format(order['date'])),
-      ),
-    );
-  }
-
-  Widget _sectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Text(
-        title,
-        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-      ),
-    );
-  }
-}
-
-// ================== AddPlantPage ==================
-class AddPlantPage extends StatefulWidget {
-  const AddPlantPage({super.key});
-
-  @override
-  State<AddPlantPage> createState() => _AddPlantPageState();
-}
-
-class _AddPlantPageState extends State<AddPlantPage> {
-  File? _imageFile;
-  String _selectedQuality = 'Excellent';
-  String _selectedType = 'Indoor';
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _priceController = TextEditingController();
-  final TextEditingController _quantityController = TextEditingController();
-
-  Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _imageFile = File(pickedFile.path);
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Add New Plant'), backgroundColor: const Color(0xFF6D9773)),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            if (_imageFile != null)
-              Center(child: Image.file(_imageFile!, height: 150)),
-            TextButton.icon(
-              icon: const Icon(Icons.image, color: Color(0xFF6D9773)),
-              label: const Text("Choose Image", style: TextStyle(color: Color(0xFF6D9773))),
-              onPressed: _pickImage,
-            ),
-            const SizedBox(height: 12),
-            TextField(controller: _nameController, decoration: const InputDecoration(labelText: 'Plant Name')),
-            const SizedBox(height: 12),
-            TextField(controller: _priceController, decoration: const InputDecoration(labelText: 'Price'), keyboardType: TextInputType.number),
-            const SizedBox(height: 12),
-            TextField(controller: _quantityController, decoration: const InputDecoration(labelText: 'Quantity'), keyboardType: TextInputType.number),
-            const SizedBox(height: 12),
-            Text("Quality"),
-            DropdownButton<String>(
-              value: _selectedQuality,
-              isExpanded: true,
-              items: ['Excellent', 'Good', 'Fair', 'Poor']
-                  .map((quality) => DropdownMenuItem(value: quality, child: Text(quality)))
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedQuality = value!;
-                });
-              },
-            ),
-            const SizedBox(height: 12),
-            Text("Plant Type"),
-            DropdownButton<String>(
-              value: _selectedType,
-              isExpanded: true,
-              items: ['Indoor', 'Outdoor', 'Decorative']
-                  .map((type) => DropdownMenuItem(value: type, child: Text(type)))
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedType = value!;
-                });
-              },
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // منطق الإضافة هنا
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6D9773)),
-              child: const Text("Save Plant"),
-            )
-          ],
+        leading: const CircleAvatar(
+          backgroundColor: Color(0xFF6D9773),
+          child: Icon(Icons.person, color: Colors.white),
         ),
-      ),
-    );
-  }
-}
-
-// ================== EditPlantPage ==================
-class EditPlantPage extends StatefulWidget {
-  final Map<String, dynamic> plant;
-
-  const EditPlantPage({super.key, required this.plant});
-
-  @override
-  State<EditPlantPage> createState() => _EditPlantPageState();
-}
-
-class _EditPlantPageState extends State<EditPlantPage> {
-  File? _imageFile;
-  late String _selectedQuality;
-  late String _selectedType;
-  late TextEditingController _nameController;
-  late TextEditingController _priceController;
-  late TextEditingController _quantityController;
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController = TextEditingController(text: widget.plant['name']);
-    _priceController = TextEditingController(text: widget.plant['price'].toString());
-    _quantityController = TextEditingController(text: widget.plant['quantity'].toString());
-    _selectedQuality = widget.plant['quality'] ?? 'Excellent';
-    _selectedType = widget.plant['type'] ?? 'Indoor';
-  }
-
-  Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _imageFile = File(pickedFile.path);
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Edit Plant'), backgroundColor: const Color(0xFF6D9773)),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            if (_imageFile != null)
-              Center(child: Image.file(_imageFile!, height: 150))
-            else
-              Center(child: Image.asset(widget.plant['image'], height: 150)),
-            TextButton.icon(
-              icon: const Icon(Icons.image, color: Color(0xFF6D9773)),
-              label: const Text("Change Image", style: TextStyle(color: Color(0xFF6D9773))),
-              onPressed: _pickImage,
-            ),
-            const SizedBox(height: 12),
-            TextField(controller: _nameController, decoration: const InputDecoration(labelText: 'Plant Name')),
-            const SizedBox(height: 12),
-            TextField(controller: _priceController, decoration: const InputDecoration(labelText: 'Price'), keyboardType: TextInputType.number),
-            const SizedBox(height: 12),
-            TextField(controller: _quantityController, decoration: const InputDecoration(labelText: 'Quantity'), keyboardType: TextInputType.number),
-            const SizedBox(height: 12),
-            Text("Quality"),
-            DropdownButton<String>(
-              value: _selectedQuality,
-              isExpanded: true,
-              items: ['Excellent', 'Good', 'Fair', 'Poor']
-                  .map((quality) => DropdownMenuItem(value: quality, child: Text(quality)))
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedQuality = value!;
-                });
-              },
-            ),
-            const SizedBox(height: 12),
-            Text("Plant Type"),
-            DropdownButton<String>(
-              value: _selectedType,
-              isExpanded: true,
-              items: ['Indoor', 'Outdoor', 'Decorative']
-                  .map((type) => DropdownMenuItem(value: type, child: Text(type)))
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedType = value!;
-                });
-              },
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // منطق التعديل هنا
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6D9773)),
-              child: const Text("Update Plant"),
-            )
-          ],
+        title: Text(order['user'] ?? 'Unknown User'),
+        subtitle: Text("Total: \$${order['totalPrice']}"),
+        trailing: IconButton(
+          icon: const Icon(Icons.delete, color: Colors.red),
+          onPressed: () => _deleteOrder(order['_id']),
         ),
       ),
     );

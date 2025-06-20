@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const Order = require('../models/Order');
-const Shop = require('../models/Shop');
+const Shop = require('../models/shop'); 
 
 const { isAuthenticated, shopOwnerOnly, adminOnly, userOnly, userOrShopOwner } = require('../middleware/authMiddleware');
 
