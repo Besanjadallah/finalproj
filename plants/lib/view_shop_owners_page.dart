@@ -36,15 +36,18 @@ class _ViewShopOwnersPageState extends State<ViewShopOwnersPage> {
       final data = response.data as List;
 
       setState(() {
-        owners = data
-            .map((owner) => {
-                  'id': owner['_id'],
-                  'name': owner['name'],
-                  'email': owner['email'],
-                  'phone': owner['phone'],
-                  'address': owner['address'],
-                })
-            .toList();
+        owners =
+            data
+                .map(
+                  (owner) => {
+                    'id': owner['_id'],
+                    'name': owner['name'],
+                    'email': owner['email'],
+                    'phone': owner['phone'],
+                    'address': owner['address'],
+                  },
+                )
+                .toList();
       });
     } catch (e) {
       print('❌ Error fetching shop owners: $e');
@@ -58,42 +61,54 @@ class _ViewShopOwnersPageState extends State<ViewShopOwnersPage> {
 
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Delete Owner'),
-        content: const Text('Are you sure you want to delete this shop owner?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+      builder:
+          (_) => AlertDialog(
+            title: const Text('Delete Owner'),
+            content: const Text(
+              'Are you sure you want to delete this shop owner?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  try {
+                    await dio.delete(
+                      '$apiBaseUrl/api/users/$ownerId',
+                      options: Options(
+                        headers: {'Authorization': 'Bearer $token'},
+                      ),
+                    );
+
+                    setState(() {
+                      owners.removeAt(index);
+                    });
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('✅ Shop owner deleted successfully'),
+                      ),
+                    );
+                  } catch (e) {
+                    print('❌ Error deleting owner: $e');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('❌ Failed to delete shop owner'),
+                      ),
+                    );
+                  }
+
+                  Navigator.pop(context);
+                },
+                child: const Text(
+                  'Delete',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () async {
-              try {
-                await dio.delete(
-                  '$apiBaseUrl/api/users/shopowners/$ownerId',
-                  options: Options(headers: {'Authorization': 'Bearer $token'}),
-                );
-
-                setState(() {
-                  owners.removeAt(index);
-                });
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('✅ Shop owner deleted successfully')),
-                );
-              } catch (e) {
-                print('❌ Error deleting owner: $e');
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('❌ Failed to delete shop owner')),
-                );
-              }
-
-              Navigator.pop(context);
-            },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
     );
   }
 
@@ -115,95 +130,112 @@ class _ViewShopOwnersPageState extends State<ViewShopOwnersPage> {
         centerTitle: true,
         backgroundColor: const Color(0xFF6D9773),
       ),
-      body: owners.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: constraints.maxWidth > 900
-                          ? 3
-                          : constraints.maxWidth > 600
-                              ? 2
-                              : 1,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      childAspectRatio: 1.6,
-                    ),
-                    itemCount: owners.length,
-                    itemBuilder: (context, index) {
-                      final owner = owners[index];
-                      return Card(
-                        elevation: 4,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.person, color: Color(0xFF6D9773)),
-                                  const SizedBox(width: 8),
-                                  Flexible(
-                                    child: Text(
-                                      owner['name'] ?? '',
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
+      body:
+          owners.isEmpty
+              ? const Center(child: CircularProgressIndicator())
+              : Padding(
+                padding: const EdgeInsets.all(16),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount:
+                            constraints.maxWidth > 900
+                                ? 3
+                                : constraints.maxWidth > 600
+                                ? 2
+                                : 1,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                        childAspectRatio: 1.6,
+                      ),
+                      itemCount: owners.length,
+                      itemBuilder: (context, index) {
+                        final owner = owners[index];
+                        return Card(
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.person,
+                                      color: Color(0xFF6D9773),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Flexible(
+                                      child: Text(
+                                        owner['name'] ?? '',
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.chat_bubble_outline, color: Colors.blueGrey),
-                                    tooltip: 'Chat with owner',
-                                    onPressed: () => _startChatWithOwner(owner['name'] ?? ''),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  const Icon(Icons.email, size: 18, color: Colors.grey),
-                                  const SizedBox(width: 8),
-                                  Flexible(child: Text(owner['email'] ?? '')),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  const Icon(Icons.phone, size: 18, color: Colors.grey),
-                                  const SizedBox(width: 8),
-                                  Flexible(child: Text(owner['phone'] ?? '')),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  const Icon(Icons.location_on, size: 18, color: Colors.grey),
-                                  const SizedBox(width: 8),
-                                  Flexible(child: Text(owner['address'] ?? '')),
-                                ],
-                              ),
-                              Align(
-                                alignment: Alignment.bottomRight,
-                                child: IconButton(
-                                  icon: const Icon(Icons.delete, color: Colors.red),
-                                  tooltip: 'Delete owner',
-                                  onPressed: () => _deleteOwner(index),
+                                  ],
                                 ),
-                              ),
-                            ],
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.email,
+                                      size: 18,
+                                      color: Colors.grey,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Flexible(child: Text(owner['email'] ?? '')),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.phone,
+                                      size: 18,
+                                      color: Colors.grey,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Flexible(child: Text(owner['phone'] ?? '')),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.location_on,
+                                      size: 18,
+                                      color: Colors.grey,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Flexible(
+                                      child: Text(owner['address'] ?? ''),
+                                    ),
+                                  ],
+                                ),
+                                Align(
+                                  alignment: Alignment.bottomRight,
+                                  child: IconButton(
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      color: Colors.red,
+                                    ),
+                                    tooltip: 'Delete owner',
+                                    onPressed: () => _deleteOwner(index),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  );
-                },
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
     );
   }
 }

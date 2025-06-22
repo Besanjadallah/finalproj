@@ -20,9 +20,7 @@ const {
   deleteUser,
   getNormalUsers,
   updateUserProfile,
-  changePassword,
-  deleteShopOwner,
-  updateShopOwner
+  changePassword
 } = require('../controllers/userController');
 
 // 🔐 Auth routes
@@ -47,9 +45,5 @@ router.get('/users/shopowners', isAuthenticated, adminOnly, getShopOwners);
 router.get('/users/:id', isAuthenticated, adminOnly, getUserById);
 router.put('/users/:id', isAuthenticated, adminOnly, updateUser);
 router.delete('/users/:id', isAuthenticated, adminOnly, deleteUser);
-
-// ✅ إدارة خاصة لـ ShopOwners
-router.delete('/shopowners/:id', isAuthenticated, adminOnly, deleteShopOwner);
-router.put('/shopowners/:id', isAuthenticated, adminOnly, updateShopOwner);
 
 module.exports = router;

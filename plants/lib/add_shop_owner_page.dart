@@ -35,7 +35,7 @@ class _AddShopOwnerPageState extends State<AddShopOwnerPage> {
 
       try {
         final response = await dio.post(
-          '$apiBaseUrl/api/users/create-shopowner',
+          '$apiBaseUrl/api/create-shopowner',
           data: {
             'name': _nameController.text.trim(),
             'email': _emailController.text.trim(),
@@ -43,9 +43,7 @@ class _AddShopOwnerPageState extends State<AddShopOwnerPage> {
             'address': _addressController.text.trim(),
             'password': _passwordController.text.trim(),
           },
-          options: Options(
-            headers: {'Authorization': 'Bearer $token'},
-          ),
+          options: Options(headers: {'Authorization': 'Bearer $token'}),
         );
 
         if (response.statusCode == 201) {
@@ -88,21 +86,26 @@ class _AddShopOwnerPageState extends State<AddShopOwnerPage> {
                 controller: _nameController,
                 label: 'Full Name',
                 icon: Icons.person,
-                validator: (value) => value!.isEmpty ? 'Enter owner name' : null,
+                validator:
+                    (value) => value!.isEmpty ? 'Enter owner name' : null,
               ),
               _buildTextField(
                 controller: _emailController,
                 label: 'Email',
                 icon: Icons.email,
                 keyboardType: TextInputType.emailAddress,
-                validator: (value) => value!.contains('@') ? null : 'Enter valid email',
+                validator:
+                    (value) =>
+                        value!.contains('@') ? null : 'Enter valid email',
               ),
               _buildTextField(
                 controller: _phoneController,
                 label: 'Phone Number',
                 icon: Icons.phone,
                 keyboardType: TextInputType.phone,
-                validator: (value) => value!.length < 7 ? 'Enter valid phone number' : null,
+                validator:
+                    (value) =>
+                        value!.length < 7 ? 'Enter valid phone number' : null,
               ),
               _buildTextField(
                 controller: _addressController,
@@ -115,7 +118,8 @@ class _AddShopOwnerPageState extends State<AddShopOwnerPage> {
                 label: 'Password',
                 icon: Icons.lock,
                 obscureText: true,
-                validator: (value) => value!.length < 6 ? 'Password too short' : null,
+                validator:
+                    (value) => value!.length < 6 ? 'Password too short' : null,
               ),
               const SizedBox(height: 30),
               ElevatedButton.icon(

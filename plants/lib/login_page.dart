@@ -27,16 +27,17 @@ class _LoginPageState extends State<LoginPage> {
     if (email.isEmpty || password.isEmpty) {
       showDialog(
         context: context,
-        builder: (_) => AlertDialog(
-          title: const Text("Missing Info"),
-          content: const Text("Please fill in all fields."),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("OK"),
+        builder:
+            (_) => AlertDialog(
+              title: const Text("Missing Info"),
+              content: const Text("Please fill in all fields."),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("OK"),
+                ),
+              ],
             ),
-          ],
-        ),
       );
       return;
     }
@@ -44,7 +45,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       print("📤 Sending login request...");
       final response = await http.post(
-        Uri.parse('http://192.168.1.18:8080/api/users/login'),
+        Uri.parse('http://192.168.56.1:8080/api/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password}),
       );
@@ -64,9 +65,10 @@ class _LoginPageState extends State<LoginPage> {
         await prefs.setString('name', data['user']['name']);
         await prefs.setString('email', data['user']['email']);
         await prefs.setString('userId', data['user']['id']);
-        if (data['user']['role'] == 'shopowner') {
-          await prefs.setString('shopId', data['user']['shopId'] ?? '');
-        }
+        await prefs.setString('shopId', data['user']['shopId'] ?? '');
+        final shopId = data['user']['shopId'] ?? '';
+        await prefs.setString('shopId', shopId);
+        print("🪪 Saved shopId: $shopId");
 
         if (!mounted) return;
 
@@ -90,32 +92,36 @@ class _LoginPageState extends State<LoginPage> {
         print("⚠️ Login failed: ${data['error'] ?? data['message']}");
         showDialog(
           context: context,
-          builder: (_) => AlertDialog(
-            title: const Text("Error"),
-            content: Text(data['error'] ?? data['message'] ?? "Invalid credentials."),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("OK"),
+          builder:
+              (_) => AlertDialog(
+                title: const Text("Error"),
+                content: Text(
+                  data['error'] ?? data['message'] ?? "Invalid credentials.",
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text("OK"),
+                  ),
+                ],
               ),
-            ],
-          ),
         );
       }
     } catch (e) {
       print("❌ Exception during login: $e");
       showDialog(
         context: context,
-        builder: (_) => AlertDialog(
-          title: const Text("Error"),
-          content: Text('Failed to connect to server.\n$e'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("OK"),
+        builder:
+            (_) => AlertDialog(
+              title: const Text("Error"),
+              content: Text('Failed to connect to server.\n$e'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("OK"),
+                ),
+              ],
             ),
-          ],
-        ),
       );
     }
   }
@@ -225,7 +231,7 @@ class _LoginPageState extends State<LoginPage> {
                         color: Colors.green,
                         fontWeight: FontWeight.bold,
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
