@@ -6,7 +6,12 @@ const cors = require('cors');
 
 const app = express();
 
-// ✅ تسجيل الراوترات
+/* ──────────── إعداد الميدل ويرز ──────────── */
+app.use(express.json());
+app.use(cors());
+app.use('/uploads', express.static('uploads'));
+
+/* ──────────── تسجيل الراوترات ──────────── */
 const userRoutes = require('./routes/userRoutes');
 const shopRoutes = require('./routes/shopRoutes');
 const plantRoutes = require('./routes/plantRoutes');
@@ -16,10 +21,13 @@ const plantAnalysisRoutes = require('./routes/plantAnalysisRoutes');
 
 console.log('🧩 جميع الراوترات تم تحميلها');
 
-app.use(express.json());
-app.use(cors());
-app.use('/uploads', express.static('uploads'));
-app.use('/api/plant', plantAnalysisRoutes);  // ✅ تحليلات النباتات (Plant Analysis)
+/* ──────────── ربط الراوتات ──────────── */
+app.use('/api', userRoutes);           // تسجيل الدخول والتسجيل
+app.use('/api/shops', shopRoutes);           // راوتر المحلات
+app.use('/api/plants', plantRoutes);         // راوتر النباتات
+app.use('/api/orders', orderRoutes);         // راوتر الطلبات
+app.use('/api/favorites', favoriteRoutes);   // راوتر المفضلة
+app.use('/api/plant', plantAnalysisRoutes);  // تحليلات النباتات (AI)
 
 /* ──────────── فحص متغيرات البيئة ──────────── */
 console.log('🛠️ Checking environment variables:');
@@ -31,14 +39,7 @@ if (!process.env.MONGO_URI) {
 }
 console.log('PORT:', process.env.PORT || 'default 8080');
 
-/* ──────────── ربط الراوتات ──────────── */
-app.use('/api/users', userRoutes);          // تسجيل الدخول والتسجيل
-app.use('/api/shops', shopRoutes);          // راوتر المحلات
-app.use('/api/plants', plantRoutes);        // راوتر النباتات
-app.use('/api/orders', orderRoutes);        // ✅ راوتر الطلبات
-app.use('/api/favorites', favoriteRoutes);  // راوتر المفضلة
-
-/* ──────────── مسار اختبار ──────────── */
+/* ──────────── مسار اختبار السيرفر ──────────── */
 app.get('/', (req, res) => {
   console.log("🌱 Root route hit!");
   res.json({ message: "Welcome to Plantsi backend 🌿" });

@@ -36,16 +36,19 @@ class _ViewUsersPageState extends State<ViewUsersPage> {
       final data = response.data as List;
 
       setState(() {
-        users = data
-            .where((user) => user['role'] == 'user')
-            .map((user) => {
-                  'id': user['id'],
-                  'name': user['name'],
-                  'email': user['email'],
-                  'phone': user['phone'],
-                  'address': user['address'],
-                })
-            .toList();
+        users =
+            data
+                .where((user) => user['role'] == 'user')
+                .map(
+                  (user) => {
+                    'id': user['_id'],
+                    'name': user['name'],
+                    'email': user['email'],
+                    'phone': user['phone'],
+                    'address': user['address'],
+                  },
+                )
+                .toList();
       });
     } catch (e) {
       print('Error fetching users: $e');
@@ -73,9 +76,9 @@ class _ViewUsersPageState extends State<ViewUsersPage> {
       );
     } catch (e) {
       print('Error deleting user: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to delete user')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Failed to delete user')));
     }
   }
 
@@ -88,35 +91,39 @@ class _ViewUsersPageState extends State<ViewUsersPage> {
         backgroundColor: const Color(0xFF6D9773),
         centerTitle: true,
       ),
-      body: users.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: users.length,
-              itemBuilder: (context, index) {
-                final user = users[index];
-                return Card(
-                  elevation: 4,
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  child: ListTile(
-                    leading: const Icon(Icons.person, color: Color(0xFF6D9773)),
-                    title: Text(user['name']),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Email: ${user['email']}'),
-                        Text('Phone: ${user['phone']}'),
-                        Text('Address: ${user['address']}'),
-                      ],
+      body:
+          users.isEmpty
+              ? const Center(child: CircularProgressIndicator())
+              : ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: users.length,
+                itemBuilder: (context, index) {
+                  final user = users[index];
+                  return Card(
+                    elevation: 4,
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    child: ListTile(
+                      leading: const Icon(
+                        Icons.person,
+                        color: Color(0xFF6D9773),
+                      ),
+                      title: Text(user['name']),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Email: ${user['email']}'),
+                          Text('Phone: ${user['phone']}'),
+                          Text('Address: ${user['address']}'),
+                        ],
+                      ),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () => _deleteUser(index),
+                      ),
                     ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: () => _deleteUser(index),
-                    ),
-                  ),
-                );
-              },
-            ),
+                  );
+                },
+              ),
     );
   }
 }

@@ -3,9 +3,10 @@ const router = express.Router();
 const path = require('path');
 const multer = require('multer');
 const Plant = require('../models/Plant');
+const Shop = require('../models/Shop'); // ✅ إضافة الموديل
 const { isAuthenticated, shopOwnerOnly } = require('../middleware/authMiddleware');
 
-// ✅ إعداد multer لتخزين الصور في مجلد uploads
+// إعداد multer لتخزين الصور في مجلد uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/'),
   filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
@@ -13,7 +14,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// ✅ إضافة نبتة جديدة
+// ✅ Add plant with image (shopId يتم جلبه تلقائيًا من حساب المستخدم)
 router.post(
   '/add',
   isAuthenticated,
@@ -21,11 +22,15 @@ router.post(
   upload.single('image'),
   async (req, res) => {
     try {
-      const { shopId, name, price, quantity, quality, type } = req.body;
+      const { name, price, quantity, quality, type } = req.body;
       const imageUrl = req.file ? `/uploads/${req.file.filename}` : '';
 
+      // ✅ جلب shopId بناء على userId
+      const shop = await Shop.findOne({ ownerId: req.userId });
+      if (!shop) return res.status(404).json({ error: 'Shop not found for this user' });
+
       const plant = new Plant({
-        shopId,
+        shopId: shop._id,
         name,
         price,
         quantity,
@@ -43,7 +48,7 @@ router.post(
   }
 );
 
-// ✅ تحديث نبتة
+// ✅ Update plant with optional image
 router.put(
   '/:plantId',
   isAuthenticated,
@@ -68,9 +73,6 @@ router.put(
         updateData,
         { new: true }
       );
-
-      if (!plant) return res.status(404).json({ message: 'Plant not found' });
-
       res.json(plant);
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -78,19 +80,17 @@ router.put(
   }
 );
 
-// ✅ حذف نبتة
+// ✅ Delete plant
 router.delete('/:plantId', isAuthenticated, shopOwnerOnly, async (req, res) => {
   try {
-    const deleted = await Plant.findByIdAndDelete(req.params.plantId);
-    if (!deleted) return res.status(404).json({ message: 'Plant not found' });
-
-    res.json({ message: 'Plant deleted successfully' });
+    await Plant.findByIdAndDelete(req.params.plantId);
+    res.json({ message: 'Plant deleted' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// ✅ عرض كل النباتات الخاصة بمحطة معيّنة
+// ✅ Get all plants for a shop
 router.get('/shop/:shopId', async (req, res) => {
   try {
     const plants = await Plant.find({ shopId: req.params.shopId });
